@@ -6,8 +6,10 @@ module.exports = {
   solidity: "0.8.20",
   networks: {
     opbnbTestnet: {
-      url: process.env.OPBNB_TESTNET_RPC,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      url: process.env.OPBNB_TESTNET_RPC || "",
+      accounts: process.env.PRIVATE_KEY
+        ? [process.env.PRIVATE_KEY]
+        : [],
     },
   },
 };
