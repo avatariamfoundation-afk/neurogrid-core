@@ -9,7 +9,6 @@ async function main() {
   await neuroGridCore.waitForDeployment();
 
   const address = await neuroGridCore.getAddress();
-
   console.log("NeuroGridCore deployed to:", address);
 }
 
