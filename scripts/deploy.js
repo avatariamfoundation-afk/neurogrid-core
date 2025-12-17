@@ -1,15 +1,21 @@
-
 const hre = require("hardhat");
 
 async function main() {
-  const NeuroGridCore = await hre.ethers.getContractFactory("NeuroGridCore");
-  const contract = await NeuroGridCore.deploy();
-  await contract.deployed();
+  console.log("Deploying NeuroGridCore...");
 
-  console.log("NeuroGridCore deployed to:", contract.address);
+  const NeuroGridCore = await hre.ethers.getContractFactory("NeuroGridCore");
+  const neuroGridCore = await NeuroGridCore.deploy();
+
+  await neuroGridCore.waitForDeployment();
+
+  const address = await neuroGridCore.getAddress();
+
+  console.log("NeuroGridCore deployed to:", address);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
