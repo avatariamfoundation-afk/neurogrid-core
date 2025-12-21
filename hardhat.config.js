@@ -1,15 +1,14 @@
+require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
-require("@nomicfoundation/hardhat-toolbox");
 
-/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.20",
+  solidity: "0.8.19",
   networks: {
-    opbnbTestnet: {
-      url: process.env.OPBNB_TESTNET_RPC || "",
-      accounts: process.env.PRIVATE_KEY
-        ? [process.env.PRIVATE_KEY]
-        : [],
+    testnet: {
+      url: process.env.BNB_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY],
+      gasPrice: 20000000000,  // Optimized for lower costs
     },
   },
+  // Add for future scalability: plugins like hardhat-gas-reporter
 };
