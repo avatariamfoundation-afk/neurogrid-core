@@ -1,1 +1,23 @@
-
+module.exports = {
+  port: process.env.PORT || 3000,
+  apiTimeout: 10000,
+  bnbRpcUrl: process.env.BNB_RPC_URL,
+  privateKey: process.env.PRIVATE_KEY,
+  aiApiKey: process.env.AI_API_KEY,
+  aiModel: process.env.AI_MODEL,
+  cacheEnabled: true,
+  encryptionKey: process.env.ENCRYPTION_KEY,
+  zkpEnabled: false,
+  p2pPort: process.env.P2P_PORT || 3001,
+  bootstrapNodes: [process.env.BOOTSTRAP_NODE],
+  rateLimit: process.env.RATE_LIMIT || 10,
+  maxDataSize: process.env.MAX_DATA_SIZE || 1024,
+  crossChainEnabled: false,
+  tokenContractAddress: null,
+  complianceMode: 'basic',
+  logLevel: process.env.LOG_LEVEL || 'info',
+  enableAuditLogs: process.env.ENABLE_AUDIT_LOGS === 'true',
+  agentCapabilities: ['inference', 'routing', 'verification'],
+  researchFederationEnabled: true,
+  bridgesToAethera: false // Update to true when integrated
+};
