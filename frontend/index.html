@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NeuroGrid-Core Demo</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #fafafa; }
+  form { max-width: 400px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px #ccc; margin-bottom: 20px; }
+  input, button { width: 100%; margin: 10px 0; padding: 10px; font-size: 1em; }
+  button { background: #007bff; color: white; border: none; cursor: pointer; }
+  button:hover { background: #0056b3; }
+  #result { margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>NeuroGrid-Core AI Agents & Research Demo</h1>
 
+<form id="agentForm">
+  <input type="text" id="agentId" placeholder="Agent ID" required />
+  <input type="text" id="task" placeholder="Task description" required />
+  <button type="submit">Assign Task</button>
+</form>
+
+<form id="computeForm">
+  <input type="text" id="computeTask" placeholder="Compute Task" required />
+  <input type="text" id="computeData" placeholder="Data" required />
+  <button type="submit">Route Task</button>
+</form>
+
+<form id="researchForm">
+  <input type="text" id="computation" placeholder="Computation" required />
+  <input type="text" id="researchData" placeholder="Research Data" required />
+  <button type="submit">Verify Research</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+  const resultDiv = document.getElementById('result');
+
+  async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  }
+
+  document.getElementById('agentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const response = await postData('/agent/task', {
+      agentId: e.target.agentId.value,
+      task: e.target.task.value
+    });
+    resultDiv.textContent = response.status || response.error || JSON.stringify(response);
+  });
+
+  document.getElementById('computeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const response = await postData('/compute/route', {
+      task: e.target.computeTask.value,
+      data: e.target.computeData.value
+    });
+    resultDiv.textContent = response.result || response.error || JSON.stringify(response);
+  });
+
+  document.getElementById('researchForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const response = await postData('/research/verify', {
+      computation: e.target.computation.value,
+      data: e.target.researchData.value
+    });
+    resultDiv.textContent = response.receipt || response.error || JSON.stringify(response);
+  });
+</script>
+</body>
+</html>
