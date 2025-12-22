@@ -1,36 +1,45 @@
-# NeuroGrid Core
+# NeuroGrid-Core: Decentralized Intelligence for AI Agents and Scientific Research in Post-Operative Care
 
-NeuroGrid Core is the blockchain and identity backbone for NeuroGrid — the global AI × DeSci system for post-operative care and remote patient monitoring (RPM). This repo contains core smart-contract interfaces, governance outlines, and protocol docs for consent, device registration, and verifiable scientific provenance.
-
-Key focus:
-- Consent & data-access contracts
-- Device registration and identity
-- Reputation & funding primitives for DeSci
-- Minimal on-chain footprint (hash + metadata only)
-
-  ---
-  
-# NeuroGrid-Core: AI-Driven Decentralized Grid on BNB Chain
-
-NeuroGrid is a Web3 platform for decentralized AI-powered grids, enabling secure, neural-network-inspired data sharing and computation. Built for the BNB Chain hackathon, it lays the foundation for scalable AI services in my company.
+NeuroGrid is a hybrid AI x DeSci network designed for autonomous agents, scientific compute, and decentralized knowledge. It integrates AI components (autonomous agents, decentralized compute routing, identity, receipts, inference, distributed workloads) with DeSci elements (research networks, verifiable scientific computation, decentralized biomed data layers, reproducibility receipts, open-data knowledge graph, federation of research agents, human-machine co-labs, bridges to Aethera BioSync) to support post-operative care. Built on BNB Chain for the hackathon, it forms the foundation of the Avatariam Foundation AFK ecosystem, enabling secure, scalable intelligence for recovery and research.
 
 ## Features
-- Smart contracts for grid node registration and data flow.
-- Basic AI integration via off-chain APIs for predictive analytics.
-- P2P networking for node connections (expandable).
+- **AI Components**: Autonomous agents for task automation, decentralized compute routing for efficient workloads, identity management, receipts for transactions, inference engines for predictions, and distributed processing.
+- **DeSci Components**: Research networks for collaboration, verifiable computation for biomedical data, decentralized layers for data sharing, reproducibility receipts, open-data knowledge graphs, federated agents, human-machine co-labs, and bridges to Aethera BioSync.
+- **Post-Operative Focus**: Tailored for recovery monitoring, complication prediction, and research-driven care plans.
+- **Security**: Encrypted data, audit logs, and ZKP for privacy.
+- **Scalability**: P2P networking, cross-chain support, and token incentives.
 
 ## Quick Start
-1. Clone the repo: `git clone https://github.com/avatariamfoundation-afk/neurogrid-core.git`
-2. Install dependencies: `npm install`
-3. Set up environment: Copy `.env.example` to `.env` and fill in keys.
-4. Deploy to BNB Testnet: `npx hardhat run scripts/deploy.js --network testnet`
-5. Run demo: Open `index.html` in browser for a basic grid visualization.
+1. Clone: `git clone https://github.com/avatariamfoundation-afk/neurogrid-core.git`
+2. Install: `npm install` (and `pip install requests python-dotenv` for AI)
+3. Configure: Copy `.env.example` to `.env` and fill in keys.
+4. Deploy: `npm run deploy`
+5. Start: `npm start`
+6. Demo: `npm run demo` and open http://localhost:8080
 
 ## Demo
-Watch the [demo video](link-to-video) showing node registration and AI predictions.
+Live demo: [link-to-deployed-demo] (e.g., on BNB Testnet). Test agent routing and research computation.
+
+## API
+See `docs/api.md` for endpoints on agents, compute, and research.
+
+## Testing
+- API: `npm run test-api`
+- Contracts: `npm test`
+- Lint: `npm run lint`
+
+## Security and Compliance
+- AES encryption and ZKPs for data.
+- Audit logs for reproducibility.
+- Alignment with biomedical standards.
 
 ## Future Roadmap
-- Cross-chain expansion for broader AI grids.
-- Enhanced security with ZKPs.
+- Full integration with Aethera BioSync.
+- Advanced human-machine co-labs.
+- Global federation of research agents.
 
-For issues, open a GitHub issue.
+## Contributing
+Open issues or PRs. Built by Avatariam Foundation AFK.
+
+For support, contact [your-email].
+```### Fully Optimized integration/ai.py for NeuroGrid-Core
