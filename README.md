@@ -39,7 +39,6 @@ See `docs/api.md` for endpoints on agents, compute, and research.
 - Global federation of research agents.
 
 ## Contributing
-Open issues or PRs. Built by Avatariam Foundation AFK.
+Open issues or PRs. Built by Aethera BioSync NeuroGrid.
 
 For support, contact [your-email].
-```### Fully Optimized integration/ai.py for NeuroGrid-Core
