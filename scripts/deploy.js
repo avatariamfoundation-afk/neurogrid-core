@@ -1,20 +1,28 @@
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
+const fs = require('fs');
+const configPath = './config/app.js';
 
 async function main() {
-  console.log("Deploying NeuroGridCore...");
+  console.log("Deploying NeuroGrid-Core contracts...");
 
-  const NeuroGridCore = await hre.ethers.getContractFactory("NeuroGridCore");
-  const neuroGridCore = await NeuroGridCore.deploy();
+  const MedToken = await ethers.getContractFactory("MedToken");
+  const neuroToken = await MedToken.deploy();
+  await neuroToken.deployed();
+  console.log("NeuroToken deployed at:", neuroToken.address);
 
-  await neuroGridCore.waitForDeployment();
+  const NeuroGrid = await ethers.getContractFactory("NeuroGrid");
+  const neuroGrid = await NeuroGrid.deploy(neuroToken.address);
+  await neuroGrid.deployed();
+  console.log("NeuroGrid deployed at:", neuroGrid.address);
 
-  const address = await neuroGridCore.getAddress();
-  console.log("NeuroGridCore deployed to:", address);
+  // Update config with token address
+  const config = require(configPath);
+  config.tokenContractAddress = neuroToken.address;
+  fs.writeFileSync(configPath, `module.exports = ${JSON.stringify(config, null, 2)};`);
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch((error) => {
+  .catch(error => {
     console.error(error);
     process.exit(1);
   });
