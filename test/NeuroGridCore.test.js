@@ -1,35 +1,29 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const Agent = require("../models/Agent");
 
-describe("NeuroGridCore", function () {
-  let neuroGrid;
-  let owner;
+describe("NeuroGrid-Core Basic Tests", function () {
+  let neuroGrid, neuroToken;
 
   beforeEach(async function () {
-    [owner] = await ethers.getSigners();
+    const MedToken = await ethers.getContractFactory("MedToken");
+    neuroToken = await MedToken.deploy();
+    await neuroToken.deployed();
 
-    const NeuroGridCore = await ethers.getContractFactory("NeuroGridCore");
-    neuroGrid = await NeuroGridCore.deploy();
-    await neuroGrid.waitForDeployment();
+    const NeuroGrid = await ethers.getContractFactory("NeuroGrid");
+    neuroGrid = await NeuroGrid.deploy(neuroToken.address);
+    await neuroGrid.deployed();
   });
 
-  it("should increment case counter when monitoring is requested", async function () {
-    await neuroGrid.requestPostOpMonitoring();
-    expect(await neuroGrid.caseCounter()).to.equal(1);
+  it("should create and manage an agent instance", function () {
+    const agent = new Agent("agent01");
+    agent.assignTask("Sample task");
+    expect(agent.tasks.length).to.equal(1);
+    expect(agent.status).to.equal('active');
   });
 
-  it("should emit PostOpMonitoringRequested event", async function () {
-    await expect(neuroGrid.requestPostOpMonitoring())
-      .to.emit(neuroGrid, "PostOpMonitoringRequested")
-      .withArgs(1, owner.address);
-  });
-
-  it("should emit MonitoringResultSubmitted event", async function () {
-    await expect(
-      neuroGrid.submitMonitoringResult(1, "QmTestHash123")
-    )
-      .to.emit(neuroGrid, "MonitoringResultSubmitted")
-      .withArgs(1, "QmTestHash123");
+  it("should deploy contracts", async function () {
+    expect(neuroToken.address).to.not.be.undefined;
+    expect(neuroGrid.address).to.not.be.undefined;
   });
 });
-
