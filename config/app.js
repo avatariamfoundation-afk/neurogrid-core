@@ -9,9 +9,9 @@ module.exports = {
   encryptionKey: process.env.ENCRYPTION_KEY,
   zkpEnabled: false,
   p2pPort: process.env.P2P_PORT || 3001,
-  bootstrapNodes: [process.env.BOOTSTRAP_NODE],
-  rateLimit: process.env.RATE_LIMIT || 10,
-  maxDataSize: process.env.MAX_DATA_SIZE || 1024,
+  bootstrapNodes: [process.env.BOOTSTRAP_NODE || ''],
+  rateLimit: parseInt(process.env.RATE_LIMIT) || 10,
+  maxDataSize: parseInt(process.env.MAX_DATA_SIZE) || 1024,
   crossChainEnabled: false,
   tokenContractAddress: null,
   complianceMode: 'basic',
@@ -19,5 +19,5 @@ module.exports = {
   enableAuditLogs: process.env.ENABLE_AUDIT_LOGS === 'true',
   agentCapabilities: ['inference', 'routing', 'verification'],
   researchFederationEnabled: true,
-  bridgesToAethera: false // Update to true when integrated
+  bridgesToAethera: false,
 };
