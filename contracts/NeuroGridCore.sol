@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 /**
  * @title NeuroGridCore
  * @notice Immutable registry for DeSci artifacts with access-controlled status updates, transition rules, and security enhancements.
+ * @dev Off-chain artifactId generation: Use keccak256(abi.encode(contentHash, author, timestamp)) for verification.
  */
 contract NeuroGridCore is Ownable, Pausable {
     enum ArtifactStatus {
@@ -17,17 +18,19 @@ contract NeuroGridCore is Ownable, Pausable {
         Superseded
     }
 
+    bytes32 constant NO_SUPERSESSION = bytes32(0);  // Constant for readability: indicates no supersession
+
     struct Artifact {
         bytes32 artifactId;
         bytes contentHash;  // Use `bytes` to support variable-length hashes (e.g., IPFS CID)
-        bytes32 supersededBy;  // bytes32(0) indicates no supersession
+        bytes32 supersededBy;  // NO_SUPERSESSION indicates no supersession
         address author;
         uint256 timestamp;
         ArtifactStatus status;
     }
 
     mapping(bytes32 => Artifact) public artifacts;
-    uint256 private nonce;  // Optional: For artifactId generation if block.timestamp is a concern
+    uint256 private nonce;  // Used for artifactId generation to avoid timestamp manipulation
 
     // Events
     event ArtifactRegistered(
@@ -55,21 +58,20 @@ contract NeuroGridCore is Ownable, Pausable {
 
     /**
      * @notice Register a scientific artifact with a deterministically generated unique ID and content hash.
-     * @dev Generates artifactId using abi.encode to prevent front-running and ensure uniqueness. Reverts if inputs are invalid or artifact exists.
+     * @dev Generates artifactId using abi.encode and nonce to prevent front-running and ensure uniqueness. Reverts if inputs are invalid or artifact exists.
      * @param contentHash Cryptographic hash or IPFS CID of the content.
      */
     function registerArtifact(bytes calldata contentHash) external whenNotPaused {
         require(contentHash.length > 0, "Invalid contentHash");
 
-        // Generate unique artifactId deterministically (using abi.encode for safety)
-        // Optional: Replace block.timestamp with nonce++ for unpredictability
-        bytes32 artifactId = keccak256(abi.encode(contentHash, msg.sender, block.timestamp));
+        // Generate unique artifactId deterministically (using nonce for unpredictability)
+        bytes32 artifactId = keccak256(abi.encode(contentHash, msg.sender, nonce++));
         require(artifacts[artifactId].timestamp == 0, "Artifact exists");
 
         artifacts[artifactId] = Artifact({
             artifactId: artifactId,
             contentHash: contentHash,
-            supersededBy: bytes32(0),  // No supersession initially
+            supersededBy: NO_SUPERSESSION,  // No supersession initially
             author: msg.sender,
             timestamp: block.timestamp,
             status: ArtifactStatus.Submitted  // Default status
