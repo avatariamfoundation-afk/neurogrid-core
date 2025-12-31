@@ -39,8 +39,26 @@ All high-frequency reads MUST use a read-mirror.
 The blockchain is the source of truth, not the source of performance.
 
 ---
+## 4. Cost-Aware Read Enforcement
 
-## 4. Indexer Responsibilities
+Read-mirrors and indexers are mandatory to enforce on-chain cost ceilings.
+
+Direct contract reads are restricted to:
+- Proof verification
+- State confirmation
+- Dispute resolution
+
+All UI, API, and analytics access MUST route through indexers in
+accordance with:
+
+→ `COST_CEILING_POLICY.md`
+
+Any interface bypassing the read-mirror layer is considered
+non-compliant and MUST be blocked.
+
+---
+
+## 5. Indexer Responsibilities
 
 The indexer MUST:
 
@@ -61,7 +79,7 @@ The indexer MUST NOT:
 
 ---
 
-## 5. Read-Mirror Responsibilities
+## 6. Read-Mirror Responsibilities
 
 The read-mirror MUST:
 
@@ -81,7 +99,7 @@ Direct UI access to on-chain contracts is prohibited.
 
 ---
 
-## 6. Data Model Requirements
+## 7. Data Model Requirements
 
 The read-mirror data model MUST include:
 
@@ -97,7 +115,7 @@ Loss of any of the above invalidates audit fidelity.
 
 ---
 
-## 7. Consistency & Integrity Guarantees
+## 8. Consistency & Integrity Guarantees
 
 The indexer MUST provide:
 
@@ -110,7 +128,7 @@ Any divergence between read-mirror and chain state must be detectable and correc
 
 ---
 
-## 8. Latency & Performance Targets
+## 9. Latency & Performance Targets
 
 - Event ingestion latency: ≤ 5 seconds (best effort)
 - Read query latency (p95): ≤ 300 ms
@@ -120,7 +138,7 @@ Performance tuning must never sacrifice correctness.
 
 ---
 
-## 9. Emergency Handling
+## 10. Emergency Handling
 
 During `emergencyActive == true`:
 
@@ -132,7 +150,7 @@ Emergency visibility is a safety requirement.
 
 ---
 
-## 10. Access Control & Segmentation
+## 11. Access Control & Segmentation
 
 The read-mirror MUST support:
 
@@ -144,7 +162,7 @@ The indexer itself must operate with minimal privileges.
 
 ---
 
-## 11. Audit & Verification
+## 12. Audit & Verification
 
 Auditors must be able to:
 
@@ -159,7 +177,7 @@ Audit access must not require production credentials.
 
 ---
 
-## 12. Prohibited Practices
+## 13. Prohibited Practices
 
 The following are forbidden:
 
@@ -171,7 +189,7 @@ The following are forbidden:
 
 ---
 
-## 13. Relationship to Other Standards
+## 14. Relationship to Other Standards
 
 This specification must be read with:
 
