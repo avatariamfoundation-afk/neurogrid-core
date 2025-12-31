@@ -16,8 +16,25 @@ Its objective is to:
 Batch anchoring is **not an optimization**; it is a **hard requirement**.
 
 ---
+## 2. Cost Ceiling Alignment
 
-## 2. Scope
+Batch anchoring is a mandatory cost-control mechanism and is not optional.
+
+This standard exists to enforce:
+- Predictable gas usage
+- Compliance with hard transaction ceilings
+- Reduced per-event anchoring costs
+
+Batch parameters, limits, and failure modes MUST comply with:
+
+→ `COST_CEILING_POLICY.md`
+
+Single-anchor writes are explicitly discouraged and permitted only
+under emergency or governance-approved conditions.
+
+---
+
+## 3. Scope
 
 This standard applies to:
 
@@ -32,7 +49,7 @@ It applies to all environments (test, staging, production).
 
 ---
 
-## 3. Normative Principle
+## 4. Normative Principle
 
 > **No individual artifact may be anchored on-chain if it can be safely included in a batch.**
 
@@ -45,7 +62,7 @@ All routine activity must be batched.
 
 ---
 
-## 4. Batch Definition
+## 5. Batch Definition
 
 A **batch** is a cryptographic aggregation of multiple off-chain artifacts represented by a single on-chain anchor.
 
@@ -57,7 +74,7 @@ Each batch MUST contain:
 
 ---
 
-## 5. Mandatory Batch Structure
+## 6. Mandatory Batch Structure
 
 Each batch MUST be represented off-chain as:
 
@@ -74,9 +91,9 @@ Only `batch_root_hash` is permitted on-chain.
 
 ---
 
-## 6. Anchoring Procedure
+## 7. Anchoring Procedure
 
-### 6.1 Preparation (Off-Chain)
+### 7.1 Preparation (Off-Chain)
 
 1. Collect eligible artifacts
 2. Hash each artifact deterministically
@@ -84,7 +101,7 @@ Only `batch_root_hash` is permitted on-chain.
 4. Generate Merkle root (or equivalent)
 5. Persist full batch manifest off-chain
 
-### 6.2 On-Chain Submission
+### 7.2 On-Chain Submission
 
 The following MUST be anchored via `NeuroGridCore`:
 
@@ -97,14 +114,14 @@ No raw artifacts or metadata may be submitted.
 
 ---
 
-## 7. Batch Size & Frequency Constraints
+## 8. Batch Size & Frequency Constraints
 
-### 7.1 Size
+### 8.1 Size
 
 - Minimum recommended artifacts per batch: **10**
 - No maximum size (bounded off-chain)
 
-### 7.2 Frequency
+### 8.2 Frequency
 
 - Routine batches: scheduled (daily / weekly)
 - Ad-hoc batching is discouraged
@@ -112,7 +129,7 @@ No raw artifacts or metadata may be submitted.
 
 ---
 
-## 8. Emergency Exception
+## 9. Emergency Exception
 
 During declared emergencies:
 
@@ -124,7 +141,7 @@ All emergency anchors must later be reconciled into a post-event batch.
 
 ---
 
-## 9. Audit & Verification
+## 10. Audit & Verification
 
 Auditors must be able to:
 
@@ -137,7 +154,7 @@ Failure to reproduce a batch invalidates the anchor.
 
 ---
 
-## 10. Prohibited Practices
+## 11. Prohibited Practices
 
 The following are explicitly forbidden:
 
@@ -149,7 +166,7 @@ The following are explicitly forbidden:
 
 ---
 
-## 11. Enforcement
+## 12. Enforcement
 
 Violation of this standard constitutes:
 
@@ -164,7 +181,7 @@ Sanctions may include:
 
 ---
 
-## 12. Relationship to Other Standards
+## 13. Relationship to Other Standards
 
 This standard must be read alongside:
 
