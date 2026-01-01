@@ -21,3 +21,19 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+artifacts/
+cache/
+out/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
