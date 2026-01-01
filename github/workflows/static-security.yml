@@ -1,1 +1,22 @@
+name: Static Security
+
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python Bandit
+        run: |
+          if [ -f bandit.yaml ]; then pip install bandit && bandit -r . -c bandit.yaml; fi
+
+      - name: Solidity Slither
+        run: |
+          if [ -f slither.config.json ]; then pip install slither-analyzer && slither .; fi
+
+      - name: JS ESLint Security
+        run: |
+          if [ -f .eslintrc.security.json ]; then npm install && npx eslint .; fi
 
