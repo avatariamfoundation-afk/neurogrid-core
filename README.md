@@ -106,6 +106,16 @@ See `docs/api.md` for endpoints on agents, compute, and research.
 - Contracts: `npm test`
 - Lint: `npm run lint`
 
+## Environment Configuration
+
+This repository requires a local `.env` file.
+
+1. Copy `.env.example` to `.env`
+2. Populate required values locally
+3. NEVER commit `.env`
+
+The system will not deploy or operate without explicit environment configuration.
+
 ## Security and Compliance
 - AES encryption and ZKPs for data.
 - Audit logs for reproducibility.
