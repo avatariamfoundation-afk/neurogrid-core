@@ -8,6 +8,16 @@ module.exports = {
       url: process.env.BNB_RPC_URL,
       accounts: [process.env.PRIVATE_KEY],
       gasPrice: 20000000000,  // Optimized for lower costs
+
+      require("solidity-coverage");
+
+module.exports = {
+  solidity: "0.8.20",
+  networks: {
+    hardhat: {}
+  }
+};
+
     },
   },
   // Add for future scalability: plugins like hardhat-gas-reporter
