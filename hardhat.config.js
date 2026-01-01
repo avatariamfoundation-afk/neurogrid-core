@@ -32,6 +32,24 @@ module.exports = {
   }
 };
 
+import "hardhat-gas-reporter";
+
+export default {
+  solidity: {
+    version: "0.8.21",
+    settings: {
+      optimizer: { enabled: true, runs: 200 },
+      viaIR: true
+    }
+  },
+  gasReporter: {
+    enabled: true,
+    noColors: true,
+    showTimeSpent: true
+  }
+};
+
+        
     },
   },
   // Add for future scalability: plugins like hardhat-gas-reporter
