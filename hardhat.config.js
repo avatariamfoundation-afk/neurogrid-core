@@ -11,6 +11,20 @@ module.exports = {
 
       require("solidity-coverage");
 
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+module.exports = {
+  solidity: "0.8.19",
+  networks: {
+    bnbTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+      chainId: 97
+    }
+  }
+};
+        
 module.exports = {
   solidity: "0.8.20",
   networks: {
