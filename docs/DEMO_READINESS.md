@@ -199,6 +199,8 @@ The demo is successful if:
 - Architecture is understood within 10 minutes
 
 ---
+https://x.com/AETHtoken/status/2007036573259579861
+---
 
 ## 10. Final Presenter Reminder
 
