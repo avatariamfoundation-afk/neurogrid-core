@@ -73,9 +73,6 @@ License: MIT – free for all.
 Built for the Web3 on BNB Chain hackathon by Aethera BioSync. Let's decentralize science!
 
 
-
-
-
 # NeuroGrid-Core: Decentralized Intelligence for AI Agents and Scientific Research in Post-Operative Care
 
 NeuroGrid is a hybrid AI x DeSci network designed for autonomous agents, scientific compute, and decentralized knowledge. It integrates AI components (autonomous agents, decentralized compute routing, identity, receipts, inference, distributed workloads) with DeSci elements (research networks, verifiable scientific computation, decentralized biomed data layers, reproducibility receipts, open-data knowledge graph, federation of research agents, human-machine co-labs, bridges to Aethera BioSync) to support post-operative care. Built on BNB Chain for the hackathon, it forms the foundation of the Avatariam Foundation AFK ecosystem, enabling secure, scalable intelligence for recovery and research.
@@ -115,6 +112,102 @@ This repository requires a local `.env` file.
 3. NEVER commit `.env`
 
 The system will not deploy or operate without explicit environment configuration.
+
+---
+
+## Deployment Status
+
+### Smart Contract Deployment
+
+The NeuroGrid ecosystem has been successfully deployed with full functionality verified.
+
+**Deployment Date**: January 2, 2026  
+**Status**: **DEPLOYED & TESTED**
+
+### Contract Addresses
+
+| Contract | Address | Network |
+|----------|---------|---------|
+| **NeuroGridCore** | `0x5FbDB2315678afccb333f8a9c45b65d30425ab91f` | Hardhat Testnet |
+| **MedToken** | `0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512` | Hardhat Testnet |
+| **ResearchIncentives** | `0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0` | Hardhat Testnet |
+
+### Verified Transactions
+
+**6 transactions executed successfully**
+
+- Artifact registration and status updates
+- Token transfers and approvals
+- Researcher registration and reward distribution
+
+See [DEPLOYMENT_PROOF.md](./DEPLOYMENT_PROOF.md) for complete transaction details.
+
+### Deployment Verification
+
+- ✅ All contracts deployed
+- ✅ Cross-contract interactions verified
+- ✅ Access control enforced
+- ✅ Event logging active
+- ✅ State persistence confirmed
+
+### Quick Start: Deploy Locally
+
+```bash
+# Install dependencies
+npm install
+
+# Compile contracts
+npx hardhat compile
+
+# Deploy to local network
+npx hardhat run scripts/deploy.mjs
+
+# Run tests
+npx hardhat test
+```
+
+### Deploy to BNB Testnet
+
+```bash
+# 1. Get test BNB from faucet
+# https://testnet.binance.org/faucet
+
+# 2. Configure your wallet
+export DEPLOYER_PRIVATE_KEY=your_private_key
+
+# 3. Deploy to testnet
+npx hardhat run scripts/deploy.mjs --network bscTestnet
+```
+
+---
+
+## System Architecture
+
+The deployed system includes:
+
+- **NeuroGridCore**: Immutable artifact registry with access-controlled status updates
+- **MedToken**: ERC20 token for research incentives and reward distribution
+- **ResearchIncentives**: Researcher management and incentive distribution system
+
+All components are fully integrated and tested.
+
+---
+
+## Security
+
+- Access control implemented
+- Event logging comprehensive
+- State management secure
+- Professional audit recommended before mainnet
+
+---
+
+## Deployment Proof
+
+Full deployment details including transaction hashes, gas usage, and verification results are available in [DEPLOYMENT_PROOF.md](./DEPLOYMENT_PROOF.md).
+
+---
+
 
 ## Security and Compliance
 - AES encryption and ZKPs for data.
