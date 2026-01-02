@@ -136,6 +136,8 @@ If ANY item is unchecked:
 → Fix immediately before submission.
 
 ---
+https://x.com/AETHtoken/status/2007036573259579861
+---
 
 ## Final Rule
 
