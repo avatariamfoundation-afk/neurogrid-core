@@ -1,112 +1,76 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
-/**
- * @title IComputeNode
- * @author Aethera BioSync / NeuroGrid
- *
- * PURPOSE
- * -------
- * Canonical interface for off-chain compute providers (AI inference,
- * analytics, simulations) that interact with NeuroGrid on-chain registries.
- *
- * This interface:
- * - Defines how compute nodes identify themselves
- * - Defines how results are committed on-chain
- * - Enforces a clean boundary between off-chain compute and on-chain truth
- *
- * DESIGN PRINCIPLES
- * -----------------
- * - Interface-only (NO logic)
- * - Deterministic inputs / outputs
- * - Auditable by judges and future auditors
- * - Compatible with DeSci, MedIntel, and Kernel layers
- *
- * HACKATHON SAFE
- * -------------
- * - Minimal surface
- * - No external dependencies
- * - Clear semantics
- */
-
+/// @title IComputeNode
+/// @notice Canonical interface for all registered compute nodes
+/// @dev Enforced by ComputeRegistry, ValidatorManager, and ProposalExecutor
 interface IComputeNode {
-
-    /*//////////////////////////////////////////////////////////////
-                                TYPES
-    //////////////////////////////////////////////////////////////*/
-
-    enum ComputeStatus {
-        UNKNOWN,
-        REGISTERED,
-        ACTIVE,
-        SUSPENDED
-    }
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event ComputeNodeRegistered(
+    /// @notice Emitted when a compute task begins execution
+    event ComputeStarted(
         address indexed node,
-        string metadataURI
+        bytes32 indexed taskId,
+        uint256 timestamp
     );
 
-    event ComputeResultSubmitted(
+    /// @notice Emitted when a compute task completes successfully
+    event ComputeCompleted(
         address indexed node,
-        bytes32 indexed jobId,
-        bytes32 resultHash
+        bytes32 indexed taskId,
+        bytes32 resultHash,
+        uint256 timestamp
+    );
+
+    /// @notice Emitted when a compute task fails
+    event ComputeFailed(
+        address indexed node,
+        bytes32 indexed taskId,
+        string reason,
+        uint256 timestamp
     );
 
     /*//////////////////////////////////////////////////////////////
-                            NODE IDENTITY
+                            READ FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Returns the current status of a compute node
-     */
-    function computeNodeStatus(address node)
-        external
-        view
-        returns (ComputeStatus);
+    /// @notice Returns whether the node is currently active
+    function isActive() external view returns (bool);
 
-    /**
-     * @notice Returns metadata URI describing the node
-     * @dev Points to off-chain JSON (capabilities, model type, region, etc.)
-     */
-    function computeNodeMetadata(address node)
-        external
-        view
-        returns (string memory);
+    /// @notice Returns the node operator address
+    function operator() external view returns (address);
+
+    /// @notice Returns the last executed task ID
+    function lastTaskId() external view returns (bytes32);
 
     /*//////////////////////////////////////////////////////////////
-                        REGISTRATION / LIFECYCLE
+                            EXECUTION FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Register a compute node
-     * @param metadataURI Off-chain description of compute capabilities
-     */
-    function registerComputeNode(string calldata metadataURI) external;
+    /// @notice Called by authorized executors to begin computation
+    /// @param taskId Deterministic task identifier
+    /// @param payload Arbitrary compute payload hash or pointer
+    function startCompute(
+        bytes32 taskId,
+        bytes calldata payload
+    ) external;
 
-    /**
-     * @notice Suspend a compute node (governance / kernel action)
-     */
-    function suspendComputeNode(address node) external;
-
-    /*//////////////////////////////////////////////////////////////
-                        COMPUTE RESULT COMMIT
-    //////////////////////////////////////////////////////////////*/
-
-    /**
-     * @notice Submit the hash of an off-chain compute result
-     * @dev Raw data NEVER stored on-chain
-     *
-     * @param jobId Deterministic job identifier
-     * @param resultHash Hash of result payload (IPFS / Arweave / S3)
-     */
-    function submitComputeResult(
-        bytes32 jobId,
+    /// @notice Finalizes a compute task with deterministic output
+    /// @param taskId Deterministic task identifier
+    /// @param resultHash Hash of the compute output
+    function finalizeCompute(
+        bytes32 taskId,
         bytes32 resultHash
     ) external;
-}
 
+    /// @notice Aborts a compute task with a reason
+    /// @param taskId Deterministic task identifier
+    /// @param reason Human-readable failure reason
+    function abortCompute(
+        bytes32 taskId,
+        string calldata reason
+    ) external;
+}
