@@ -1,39 +1,65 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../Kernel/NeuroGridKernel.sol";
-
 /**
- * @title NeuroDAO
- * @author NeuroGrid
- * @notice Minimal, execution-focused DAO for protocol-level governance.
+ * NeuroDAO.sol
+ * ------------------------------------------------------------------
+ * Canonical governance layer for NeuroGrid.
  *
- * DESIGN INTENT
- * -------------
- * - Governance lives in /Governance (clean separation, as requested)
- * - DAO ONLY handles proposal lifecycle and voting
- * - NO execution logic here (delegated to ProposalExecutor)
- * - Kernel remains the ultimate source of truth
+ * RESPONSIBILITIES
+ * - Proposal creation and lifecycle tracking
+ * - Voting with ABST governance token
+ * - Deterministic governance telemetry
+ * - Delegates execution to ProposalExecutor
  *
- * HACKATHON + REAL-WORLD BALANCE
- * ------------------------------
- * - Lightweight voting (token-less, address-based)
- * - Deterministic, auditable, and extensible
- * - Designed to be upgraded post-hackathon
+ * IMPORTANT
+ * - THIS IS A FULL FILE REPLACEMENT
+ * - Replace the entire contents of:
+ *
+ *   contracts/Governance/NeuroDAO.sol
  */
 
-contract NeuroDAO {
+import "../Core/NeuroGridKernel.sol";
+import "../Token/ABSToken.sol";
+import "./ProposalExecutor.sol";
 
+contract NeuroDAO {
     /*//////////////////////////////////////////////////////////////
-                                ERRORS
+                                TYPES
     //////////////////////////////////////////////////////////////*/
 
-    error NotKernelAdmin();
-    error ProposalNotFound();
-    error VotingClosed();
-    error AlreadyVoted();
-    error InvalidDuration();
-    error KernelInactive();
+    enum ProposalState {
+        NONE,
+        ACTIVE,
+        PASSED,
+        EXECUTED,
+        REJECTED
+    }
+
+    struct Proposal {
+        uint256 id;
+        address proposer;
+        bytes32 descriptionHash;
+        uint256 startEpoch;
+        uint256 endEpoch;
+        uint256 forVotes;
+        uint256 againstVotes;
+        ProposalState state;
+        bool executed;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                                STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    NeuroGridKernel public immutable kernel;
+    ABSToken public immutable absToken;
+    ProposalExecutor public executor;
+
+    uint256 public proposalCount;
+
+    mapping(uint256 => Proposal) private _proposals;
+    mapping(uint256 => mapping(address => bool)) private _hasVoted;
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
@@ -42,54 +68,32 @@ contract NeuroDAO {
     event ProposalCreated(
         uint256 indexed proposalId,
         address indexed proposer,
-        string description,
-        uint256 startTime,
-        uint256 endTime
+        bytes32 descriptionHash
     );
 
     event VoteCast(
         uint256 indexed proposalId,
         address indexed voter,
-        bool support
+        bool support,
+        uint256 weight
     );
 
     event ProposalFinalized(
         uint256 indexed proposalId,
-        bool approved
+        ProposalState state
     );
-
-    /*//////////////////////////////////////////////////////////////
-                                STRUCTS
-    //////////////////////////////////////////////////////////////*/
-
-    struct Proposal {
-        address proposer;
-        string description;
-        uint256 startTime;
-        uint256 endTime;
-        uint256 votesFor;
-        uint256 votesAgainst;
-        bool finalized;
-        bool approved;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                            STORAGE VARIABLES
-    //////////////////////////////////////////////////////////////*/
-
-    NeuroGridKernel public immutable kernel;
-
-    uint256 public proposalCount;
-
-    mapping(uint256 => Proposal) private proposals;
-    mapping(uint256 => mapping(address => bool)) private hasVoted;
 
     /*//////////////////////////////////////////////////////////////
                                 MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
-    modifier kernelActive() {
-        if (!kernel.isActive()) revert KernelInactive();
+    modifier onlyTokenHolder() {
+        require(absToken.balanceOf(msg.sender) > 0, "NO_VOTING_POWER");
+        _;
+    }
+
+    modifier proposalExists(uint256 proposalId) {
+        require(_proposals[proposalId].state != ProposalState.NONE, "INVALID_PROPOSAL");
         _;
     }
 
@@ -97,94 +101,134 @@ contract NeuroDAO {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(address kernelAddress) {
+    constructor(
+        address kernelAddress,
+        address tokenAddress,
+        address executorAddress
+    ) {
+        require(kernelAddress != address(0), "INVALID_KERNEL");
+        require(tokenAddress != address(0), "INVALID_TOKEN");
+        require(executorAddress != address(0), "INVALID_EXECUTOR");
+
         kernel = NeuroGridKernel(kernelAddress);
+        absToken = ABSToken(tokenAddress);
+        executor = ProposalExecutor(executorAddress);
     }
 
     /*//////////////////////////////////////////////////////////////
-                        PROPOSAL MANAGEMENT
+                        PROPOSAL LIFECYCLE
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Create a governance proposal.
-     *
-     * @param description Human-readable proposal summary
-     * @param votingDuration Duration in seconds
-     */
     function createProposal(
-        string calldata description,
-        uint256 votingDuration
-    ) external kernelActive returns (uint256) {
-        if (votingDuration == 0) revert InvalidDuration();
+        bytes32 descriptionHash,
+        uint256 votingDurationEpochs
+    ) external onlyTokenHolder returns (uint256) {
+        require(votingDurationEpochs > 0, "INVALID_DURATION");
 
-        uint256 proposalId = ++proposalCount;
+        proposalCount++;
+        uint256 id = proposalCount;
 
-        proposals[proposalId] = Proposal({
+        uint256 start = kernel.currentEpoch();
+        uint256 end = start + votingDurationEpochs;
+
+        _proposals[id] = Proposal({
+            id: id,
             proposer: msg.sender,
-            description: description,
-            startTime: block.timestamp,
-            endTime: block.timestamp + votingDuration,
-            votesFor: 0,
-            votesAgainst: 0,
-            finalized: false,
-            approved: false
+            descriptionHash: descriptionHash,
+            startEpoch: start,
+            endEpoch: end,
+            forVotes: 0,
+            againstVotes: 0,
+            state: ProposalState.ACTIVE,
+            executed: false
         });
 
-        emit ProposalCreated(
-            proposalId,
-            msg.sender,
-            description,
-            block.timestamp,
-            block.timestamp + votingDuration
+        kernel.emitTelemetry(
+            keccak256("NEURO_DAO"),
+            keccak256("PROPOSAL_CREATED"),
+            abi.encode(id, msg.sender)
         );
 
-        return proposalId;
+        emit ProposalCreated(id, msg.sender, descriptionHash);
+        return id;
     }
 
-    /**
-     * @notice Vote on an active proposal.
-     *
-     * @param proposalId Target proposal
-     * @param support True = For, False = Against
-     */
     function vote(
         uint256 proposalId,
         bool support
-    ) external kernelActive {
-        Proposal storage proposal = proposals[proposalId];
-        if (proposal.startTime == 0) revert ProposalNotFound();
-        if (block.timestamp > proposal.endTime) revert VotingClosed();
-        if (hasVoted[proposalId][msg.sender]) revert AlreadyVoted();
+    ) external proposalExists(proposalId) onlyTokenHolder {
+        Proposal storage p = _proposals[proposalId];
+        require(p.state == ProposalState.ACTIVE, "NOT_ACTIVE");
+        require(!_hasVoted[proposalId][msg.sender], "ALREADY_VOTED");
+        require(kernel.currentEpoch() <= p.endEpoch, "VOTING_ENDED");
 
-        hasVoted[proposalId][msg.sender] = true;
+        uint256 weight = absToken.balanceOf(msg.sender);
+        require(weight > 0, "ZERO_WEIGHT");
+
+        _hasVoted[proposalId][msg.sender] = true;
 
         if (support) {
-            proposal.votesFor++;
+            p.forVotes += weight;
         } else {
-            proposal.votesAgainst++;
+            p.againstVotes += weight;
         }
 
-        emit VoteCast(proposalId, msg.sender, support);
+        kernel.emitTelemetry(
+            keccak256("NEURO_DAO"),
+            keccak256("VOTE_CAST"),
+            abi.encode(proposalId, msg.sender, support, weight)
+        );
+
+        emit VoteCast(proposalId, msg.sender, support, weight);
     }
 
-    /**
-     * @notice Finalize a proposal after voting period.
-     * @dev Does NOT execute anything. Only marks outcome.
-     */
-    function finalizeProposal(uint256 proposalId) external kernelActive {
-        Proposal storage proposal = proposals[proposalId];
-        if (proposal.startTime == 0) revert ProposalNotFound();
-        if (block.timestamp <= proposal.endTime) revert VotingClosed();
-        if (proposal.finalized) return;
+    function finalizeProposal(uint256 proposalId)
+        external
+        proposalExists(proposalId)
+    {
+        Proposal storage p = _proposals[proposalId];
+        require(p.state == ProposalState.ACTIVE, "NOT_ACTIVE");
+        require(kernel.currentEpoch() > p.endEpoch, "VOTING_ONGOING");
 
-        proposal.finalized = true;
-        proposal.approved = proposal.votesFor > proposal.votesAgainst;
+        if (p.forVotes > p.againstVotes) {
+            p.state = ProposalState.PASSED;
+        } else {
+            p.state = ProposalState.REJECTED;
+        }
 
-        emit ProposalFinalized(proposalId, proposal.approved);
+        kernel.emitTelemetry(
+            keccak256("NEURO_DAO"),
+            keccak256("PROPOSAL_FINALIZED"),
+            abi.encode(proposalId, p.state)
+        );
+
+        emit ProposalFinalized(proposalId, p.state);
+    }
+
+    function executeProposal(uint256 proposalId)
+        external
+        proposalExists(proposalId)
+    {
+        Proposal storage p = _proposals[proposalId];
+        require(p.state == ProposalState.PASSED, "NOT_PASSED");
+        require(!p.executed, "ALREADY_EXECUTED");
+
+        p.executed = true;
+        p.state = ProposalState.EXECUTED;
+
+        executor.executeProposal(proposalId);
+
+        kernel.emitTelemetry(
+            keccak256("NEURO_DAO"),
+            keccak256("PROPOSAL_EXECUTED"),
+            abi.encode(proposalId)
+        );
+
+        emit ProposalFinalized(proposalId, ProposalState.EXECUTED);
     }
 
     /*//////////////////////////////////////////////////////////////
-                        VIEW FUNCTIONS
+                            VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
     function getProposal(uint256 proposalId)
@@ -192,22 +236,14 @@ contract NeuroDAO {
         view
         returns (Proposal memory)
     {
-        Proposal memory proposal = proposals[proposalId];
-        if (proposal.startTime == 0) revert ProposalNotFound();
-        return proposal;
+        return _proposals[proposalId];
     }
 
-    function hasAddressVoted(
-        uint256 proposalId,
-        address voter
-    ) external view returns (bool) {
-        return hasVoted[proposalId][voter];
+    function hasVoted(uint256 proposalId, address voter)
+        external
+        view
+        returns (bool)
+    {
+        return _hasVoted[proposalId][voter];
     }
-
-    /*//////////////////////////////////////////////////////////////
-                        STORAGE GAP
-    //////////////////////////////////////////////////////////////*/
-
-    uint256[50] private __gap;
 }
-
