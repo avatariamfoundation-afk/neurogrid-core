@@ -1,111 +1,93 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./NeuroGridKernel.sol";
-
 /**
- * @title ComputeRegistry
- * @author NeuroGrid
- * @notice Registry and coordination layer for off-chain compute providers.
+ * ComputeRegistry.sol
+ * ------------------------------------------------------------------
+ * Deterministic registry for compute nodes in the NeuroGrid network.
  *
- * PURPOSE
- * -------
- * This contract tracks authorized compute nodes (AI agents, inference
- * workers, research compute providers) that interact with NeuroGrid.
+ * RESPONSIBILITIES
+ * - Register and deregister compute nodes
+ * - Maintain deterministic state for node lifecycle
+ * - Emit kernel-aligned telemetry
+ * - Enforce validator-controlled permissions (no open registration)
  *
- * It does NOT:
- * - execute computation
- * - store biomedical data
- * - handle payments directly
+ * IMPORTANT
+ * - THIS IS A FULL FILE REPLACEMENT
+ * - Replace the entire contents of:
  *
- * It DOES:
- * - register compute providers
- * - manage activation / deactivation
- * - emit verifiable on-chain receipts for compute execution
+ *   contracts/Core/ComputeRegistry.sol
  *
- * SECURITY MODEL
- * --------------
- * - Kernel enforces global lifecycle state
- * - Registry enforces provider authorization
- * - Off-chain systems listen to emitted events
+ * - This contract is READ-ONLY with respect to governance
+ * - Governance / DAO logic lives elsewhere (by design)
  */
 
-contract ComputeRegistry {
+import "./NeuroGridKernel.sol";
 
+contract ComputeRegistry {
     /*//////////////////////////////////////////////////////////////
-                                ERRORS
+                                TYPES
     //////////////////////////////////////////////////////////////*/
 
-    error NotAdmin();
-    error NotKernelActive();
-    error AlreadyRegistered();
-    error NotRegistered();
-    error ProviderInactive();
-    error ZeroAddress();
+    enum NodeStatus {
+        NONE,
+        REGISTERED,
+        SUSPENDED,
+        REMOVED
+    }
+
+    struct ComputeNode {
+        address operator;
+        NodeStatus status;
+        uint256 registeredEpoch;
+        uint256 lastUpdateEpoch;
+        bytes32 metadataHash;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                                STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Reference to the NeuroGrid kernel (epoch + telemetry source)
+    NeuroGridKernel public immutable kernel;
+
+    /// @dev nodeId => ComputeNode
+    mapping(bytes32 => ComputeNode) private _nodes;
+
+    /// @dev operator address => nodeId
+    mapping(address => bytes32) private _operatorToNode;
+
+    /// @dev Total active registered nodes
+    uint256 public activeNodeCount;
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event ProviderRegistered(address indexed provider, string metadataURI);
-    event ProviderDeactivated(address indexed provider);
-    event ProviderReactivated(address indexed provider);
-
-    event ComputeReceipt(
-        address indexed provider,
-        bytes32 indexed jobId,
-        bytes32 indexed resultHash,
-        uint256 timestamp
+    event ComputeNodeRegistered(
+        bytes32 indexed nodeId,
+        address indexed operator,
+        bytes32 metadataHash,
+        uint256 epoch
     );
 
-    /*//////////////////////////////////////////////////////////////
-                                STRUCTS
-    //////////////////////////////////////////////////////////////*/
+    event ComputeNodeStatusUpdated(
+        bytes32 indexed nodeId,
+        NodeStatus status,
+        uint256 epoch
+    );
 
-    struct Provider {
-        bool registered;
-        bool active;
-        uint256 registeredAt;
-        string metadataURI; // IPFS / Arweave / HTTPS descriptor
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                            STORAGE VARIABLES
-    //////////////////////////////////////////////////////////////*/
-
-    /// @notice NeuroGrid kernel reference
-    NeuroGridKernel public immutable kernel;
-
-    /// @notice Admin authority (mirrors kernel admin)
-    address public admin;
-
-    /// @notice Mapping of compute providers
-    mapping(address => Provider) public providers;
-
-    /// @notice Total registered providers
-    uint256 public providerCount;
+    event ComputeNodeRemoved(
+        bytes32 indexed nodeId,
+        uint256 epoch
+    );
 
     /*//////////////////////////////////////////////////////////////
                                 MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
-    modifier onlyAdmin() {
-        if (msg.sender != admin) revert NotAdmin();
-        _;
-    }
-
-    modifier kernelActive() {
-        if (!kernel.isActive()) revert NotKernelActive();
-        _;
-    }
-
-    modifier providerExists(address provider) {
-        if (!providers[provider].registered) revert NotRegistered();
-        _;
-    }
-
-    modifier providerIsActive(address provider) {
-        if (!providers[provider].active) revert ProviderInactive();
+    modifier onlyKernelOwner() {
+        require(msg.sender == kernel.owner(), "NOT_KERNEL_OWNER");
         _;
     }
 
@@ -114,115 +96,128 @@ contract ComputeRegistry {
     //////////////////////////////////////////////////////////////*/
 
     constructor(address kernelAddress) {
-        if (kernelAddress == address(0)) revert ZeroAddress();
-
+        require(kernelAddress != address(0), "INVALID_KERNEL");
         kernel = NeuroGridKernel(kernelAddress);
-        admin = kernel.admin();
     }
 
     /*//////////////////////////////////////////////////////////////
-                        PROVIDER MANAGEMENT
+                        NODE REGISTRATION
     //////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Register a new compute provider.
-     * @param provider Address of the compute node / agent
-     * @param metadataURI Off-chain descriptor (capabilities, versioning, etc.)
+     * @notice Register a compute node
+     * @dev Permissioned via kernel owner / governance executor
      */
-    function registerProvider(
-        address provider,
-        string calldata metadataURI
-    ) external onlyAdmin kernelActive {
-        if (provider == address(0)) revert ZeroAddress();
-        if (providers[provider].registered) revert AlreadyRegistered();
+    function registerNode(
+        address operator,
+        bytes32 metadataHash
+    ) external onlyKernelOwner returns (bytes32 nodeId) {
+        require(operator != address(0), "INVALID_OPERATOR");
+        require(_operatorToNode[operator] == bytes32(0), "OPERATOR_EXISTS");
 
-        providers[provider] = Provider({
-            registered: true,
-            active: true,
-            registeredAt: block.timestamp,
-            metadataURI: metadataURI
+        nodeId = keccak256(
+            abi.encodePacked(
+                operator,
+                block.chainid,
+                kernel.currentEpoch()
+            )
+        );
+
+        ComputeNode storage node = _nodes[nodeId];
+        require(node.status == NodeStatus.NONE, "NODE_EXISTS");
+
+        uint256 epoch = kernel.currentEpoch();
+
+        _nodes[nodeId] = ComputeNode({
+            operator: operator,
+            status: NodeStatus.REGISTERED,
+            registeredEpoch: epoch,
+            lastUpdateEpoch: epoch,
+            metadataHash: metadataHash
         });
 
-        providerCount += 1;
+        _operatorToNode[operator] = nodeId;
+        activeNodeCount += 1;
 
-        emit ProviderRegistered(provider, metadataURI);
-    }
-
-    /**
-     * @notice Deactivate a compute provider.
-     */
-    function deactivateProvider(address provider)
-        external
-        onlyAdmin
-        providerExists(provider)
-    {
-        providers[provider].active = false;
-        emit ProviderDeactivated(provider);
-    }
-
-    /**
-     * @notice Reactivate a compute provider.
-     */
-    function reactivateProvider(address provider)
-        external
-        onlyAdmin
-        providerExists(provider)
-    {
-        providers[provider].active = true;
-        emit ProviderReactivated(provider);
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                        COMPUTE RECEIPTS
-    //////////////////////////////////////////////////////////////*/
-
-    /**
-     * @notice Emit a verifiable compute receipt.
-     * @dev Called by active compute providers after job completion.
-     *
-     * @param jobId Unique identifier for the compute task
-     * @param resultHash Hash of result artifact (model output, proof, etc.)
-     */
-    function emitComputeReceipt(
-        bytes32 jobId,
-        bytes32 resultHash
-    )
-        external
-        kernelActive
-        providerExists(msg.sender)
-        providerIsActive(msg.sender)
-    {
-        emit ComputeReceipt(
-            msg.sender,
-            jobId,
-            resultHash,
-            block.timestamp
+        kernel.emitTelemetry(
+            keccak256("COMPUTE_REGISTRY"),
+            keccak256("NODE_REGISTERED"),
+            abi.encode(nodeId, operator, metadataHash)
         );
+
+        emit ComputeNodeRegistered(nodeId, operator, metadataHash, epoch);
     }
 
     /*//////////////////////////////////////////////////////////////
-                        ADMIN SYNC
+                        NODE MANAGEMENT
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Sync admin with Kernel admin.
-     * @dev Callable after governance upgrades Kernel admin.
-     */
-    function syncAdmin() external {
-        admin = kernel.admin();
+    function updateNodeStatus(
+        bytes32 nodeId,
+        NodeStatus newStatus
+    ) external onlyKernelOwner {
+        ComputeNode storage node = _nodes[nodeId];
+        require(node.status != NodeStatus.NONE, "NODE_NOT_FOUND");
+
+        uint256 epoch = kernel.currentEpoch();
+
+        // Adjust active count deterministically
+        if (node.status == NodeStatus.REGISTERED && newStatus != NodeStatus.REGISTERED) {
+            activeNodeCount -= 1;
+        } else if (node.status != NodeStatus.REGISTERED && newStatus == NodeStatus.REGISTERED) {
+            activeNodeCount += 1;
+        }
+
+        node.status = newStatus;
+        node.lastUpdateEpoch = epoch;
+
+        kernel.emitTelemetry(
+            keccak256("COMPUTE_REGISTRY"),
+            keccak256("NODE_STATUS_UPDATED"),
+            abi.encode(nodeId, newStatus)
+        );
+
+        emit ComputeNodeStatusUpdated(nodeId, newStatus, epoch);
+    }
+
+    function removeNode(bytes32 nodeId) external onlyKernelOwner {
+        ComputeNode storage node = _nodes[nodeId];
+        require(node.status != NodeStatus.NONE, "NODE_NOT_FOUND");
+
+        uint256 epoch = kernel.currentEpoch();
+
+        if (node.status == NodeStatus.REGISTERED) {
+            activeNodeCount -= 1;
+        }
+
+        delete _operatorToNode[node.operator];
+        node.status = NodeStatus.REMOVED;
+        node.lastUpdateEpoch = epoch;
+
+        kernel.emitTelemetry(
+            keccak256("COMPUTE_REGISTRY"),
+            keccak256("NODE_REMOVED"),
+            abi.encode(nodeId)
+        );
+
+        emit ComputeNodeRemoved(nodeId, epoch);
     }
 
     /*//////////////////////////////////////////////////////////////
-                        VIEW HELPERS
+                            VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function isProviderActive(address provider) external view returns (bool) {
-        return providers[provider].registered && providers[provider].active;
+    function getNode(bytes32 nodeId) external view returns (ComputeNode memory) {
+        return _nodes[nodeId];
     }
 
-    /*//////////////////////////////////////////////////////////////
-                        STORAGE GAP (UPGRADE SAFETY)
-    //////////////////////////////////////////////////////////////*/
+    function getNodeByOperator(address operator) external view returns (ComputeNode memory) {
+        bytes32 nodeId = _operatorToNode[operator];
+        require(nodeId != bytes32(0), "NODE_NOT_FOUND");
+        return _nodes[nodeId];
+    }
 
-    uint256[50] private __gap;
+    function nodeIdOf(address operator) external view returns (bytes32) {
+        return _operatorToNode[operator];
+    }
 }
