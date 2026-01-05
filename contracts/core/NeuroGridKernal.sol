@@ -2,197 +2,185 @@
 pragma solidity ^0.8.19;
 
 /**
- * @title NeuroGridKernel
- * @author NeuroGrid
- * @notice Core on-chain kernel for NeuroGrid protocol.
+ * NeuroGridKernel.sol
+ * ------------------------------------------------------------------
+ * Core deterministic kernel for the NeuroGrid system.
  *
- * PURPOSE
- * -------
- * This contract acts as the authoritative on-chain state machine
- * coordinating the NeuroGrid system.
+ * RESPONSIBILITIES
+ * - Global epoch clock (deterministic time anchor)
+ * - System-wide event emission (single source of truth)
+ * - Telemetry root for all downstream registries
+ * - UUPS-safe upgrade foundation
  *
- * It does NOT:
- * - perform AI inference
- * - perform AI training
- * - manage off-chain compute directly
+ * IMPORTANT
+ * - This file is a FULL REPLACEMENT
+ * - Paste over the existing NeuroGridKernel.sol entirely
+ * - Storage layout is locked and explicitly ordered
  *
- * It DOES:
- * - define protocol lifecycle
- * - expose global state guards
- * - act as a trust anchor for dependent contracts
- *
- * GOVERNANCE NOTE
- * ---------------
- * Governance logic (DAO, proposals, executors) is intentionally
- * separated and lives under /contracts/governance.
- * This contract only exposes admin hooks.
+ * GOVERNANCE
+ * - Upgrade authority delegated externally (NeuroDAO / Executor)
+ * - Kernel itself contains NO governance logic
  */
 
-contract NeuroGridKernel {
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+contract NeuroGridKernel is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /*//////////////////////////////////////////////////////////////
-                                ERRORS
+                                STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    error NotAdmin();
-    error InvalidState();
-    error ZeroAddress();
+    /// @dev Global deterministic epoch counter
+    uint256 private _epoch;
+
+    /// @dev Hash of the previous epoch (for deterministic chaining)
+    bytes32 private _lastEpochHash;
+
+    /// @dev System paused flag (kernel-level safety)
+    bool private _paused;
+
+    /// @dev Reserved storage gap for future upgrades
+    uint256[46] private __gap;
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event GridActivated(uint256 timestamp);
-    event GridPaused(uint256 timestamp);
-    event GridSunset(uint256 timestamp);
-    event AdminUpdated(address indexed oldAdmin, address indexed newAdmin);
+    /**
+     * @notice Emitted every time the system advances one epoch
+     * @param epoch New epoch number
+     * @param epochHash Deterministic hash of this epoch
+     * @param triggeredBy Caller responsible for advancement
+     */
+    event EpochAdvanced(
+        uint256 indexed epoch,
+        bytes32 indexed epochHash,
+        address indexed triggeredBy
+    );
+
+    /**
+     * @notice Emitted for all kernel-level telemetry
+     * @param epoch Current epoch
+     * @param subject Logical subject (contract / module)
+     * @param action Action identifier
+     * @param actor Caller responsible
+     * @param data Arbitrary deterministic payload
+     */
+    event Telemetry(
+        uint256 indexed epoch,
+        bytes32 indexed subject,
+        bytes32 indexed action,
+        address actor,
+        bytes data
+    );
+
+    /**
+     * @notice Kernel pause state changed
+     * @param paused New pause state
+     */
+    event KernelPauseSet(bool paused);
 
     /*//////////////////////////////////////////////////////////////
-                                ENUMS
+                                INITIALIZER
     //////////////////////////////////////////////////////////////*/
 
-    enum GridState {
-        Init,       // Contract deployed, not yet active
-        Active,     // Protocol operational
-        Paused,     // Emergency or governance pause
-        Sunset      // Protocol permanently disabled
+    function initialize(address initialOwner) external initializer {
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+
+        _transferOwnership(initialOwner);
+
+        _epoch = 0;
+        _lastEpochHash = bytes32(0);
+        _paused = false;
     }
 
     /*//////////////////////////////////////////////////////////////
-                            STORAGE VARIABLES
-    //////////////////////////////////////////////////////////////*/
-
-    /// @notice Current lifecycle state of the NeuroGrid protocol
-    GridState public gridState;
-
-    /// @notice Administrative authority (temporary until full governance)
-    address public admin;
-
-    /// @notice Timestamp of last state transition
-    uint256 public lastStateChange;
-
-    /*//////////////////////////////////////////////////////////////
-                                MODIFIERS
-    //////////////////////////////////////////////////////////////*/
-
-    modifier onlyAdmin() {
-        if (msg.sender != admin) revert NotAdmin();
-        _;
-    }
-
-    modifier onlyActive() {
-        if (gridState != GridState.Active) revert InvalidState();
-        _;
-    }
-
-    modifier notSunset() {
-        if (gridState == GridState.Sunset) revert InvalidState();
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                                CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
-
-    constructor(address initialAdmin) {
-        if (initialAdmin == address(0)) revert ZeroAddress();
-
-        admin = initialAdmin;
-        gridState = GridState.Init;
-        lastStateChange = block.timestamp;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                        LIFECYCLE MANAGEMENT
+                            EPOCH LOGIC
     //////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Activate the NeuroGrid protocol.
-     * @dev Can only be called once, from Init state.
+     * @notice Advance the global deterministic epoch
+     * @dev Epoch hash is deterministic and chain-linked
      */
-    function activateGrid() external onlyAdmin {
-        if (gridState != GridState.Init) revert InvalidState();
+    function advanceEpoch() external returns (uint256 newEpoch) {
+        require(!_paused, "KERNEL_PAUSED");
 
-        gridState = GridState.Active;
-        lastStateChange = block.timestamp;
+        uint256 nextEpoch = _epoch + 1;
 
-        emit GridActivated(block.timestamp);
-    }
+        bytes32 epochHash = keccak256(
+            abi.encodePacked(
+                block.chainid,
+                address(this),
+                nextEpoch,
+                _lastEpochHash
+            )
+        );
 
-    /**
-     * @notice Pause the protocol.
-     * @dev Used for emergency or governance intervention.
-     */
-    function pauseGrid() external onlyAdmin notSunset {
-        if (gridState != GridState.Active) revert InvalidState();
+        _epoch = nextEpoch;
+        _lastEpochHash = epochHash;
 
-        gridState = GridState.Paused;
-        lastStateChange = block.timestamp;
+        emit EpochAdvanced(nextEpoch, epochHash, msg.sender);
 
-        emit GridPaused(block.timestamp);
-    }
-
-    /**
-     * @notice Reactivate the protocol from paused state.
-     */
-    function resumeGrid() external onlyAdmin {
-        if (gridState != GridState.Paused) revert InvalidState();
-
-        gridState = GridState.Active;
-        lastStateChange = block.timestamp;
-
-        emit GridActivated(block.timestamp);
-    }
-
-    /**
-     * @notice Permanently disable the protocol.
-     * @dev This action is irreversible.
-     */
-    function sunsetGrid() external onlyAdmin {
-        if (gridState == GridState.Sunset) revert InvalidState();
-
-        gridState = GridState.Sunset;
-        lastStateChange = block.timestamp;
-
-        emit GridSunset(block.timestamp);
+        return nextEpoch;
     }
 
     /*//////////////////////////////////////////////////////////////
-                        ADMIN MANAGEMENT
+                            TELEMETRY
     //////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Transfer administrative control.
-     * @dev Governance contracts may call this in the future.
+     * @notice Emit a deterministic telemetry event
+     * @dev Used by all downstream contracts
      */
-    function updateAdmin(address newAdmin) external onlyAdmin {
-        if (newAdmin == address(0)) revert ZeroAddress();
-
-        address oldAdmin = admin;
-        admin = newAdmin;
-
-        emit AdminUpdated(oldAdmin, newAdmin);
+    function emitTelemetry(
+        bytes32 subject,
+        bytes32 action,
+        bytes calldata data
+    ) external {
+        emit Telemetry(
+            _epoch,
+            subject,
+            action,
+            msg.sender,
+            data
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
-                        VIEW HELPERS
+                            VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function isActive() external view returns (bool) {
-        return gridState == GridState.Active;
+    function currentEpoch() external view returns (uint256) {
+        return _epoch;
     }
 
-    function isPaused() external view returns (bool) {
-        return gridState == GridState.Paused;
+    function lastEpochHash() external view returns (bytes32) {
+        return _lastEpochHash;
     }
 
-    function isSunset() external view returns (bool) {
-        return gridState == GridState.Sunset;
+    function paused() external view returns (bool) {
+        return _paused;
     }
 
     /*//////////////////////////////////////////////////////////////
-                        STORAGE GAP (UPGRADE SAFETY)
+                            SAFETY CONTROLS
     //////////////////////////////////////////////////////////////*/
 
-    uint256[50] private __gap;
+    function setPaused(bool pauseState) external onlyOwner {
+        _paused = pauseState;
+        emit KernelPauseSet(pauseState);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        UUPS AUTHORIZATION
+    //////////////////////////////////////////////////////////////*/
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyOwner
+    {}
+
 }
