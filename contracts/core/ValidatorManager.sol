@@ -1,91 +1,86 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./NeuroGridKernel.sol";
-
 /**
- * @title ValidatorManager
- * @author NeuroGrid
- * @notice Canonical registry for validators verifying compute, artifacts, and research outputs.
+ * ValidatorManager.sol
+ * ------------------------------------------------------------------
+ * Deterministic validator coordination layer for NeuroGrid.
  *
- * ROLE
- * ----
- * - Maintains an allowlist of trusted validators
- * - Enforces kernel lifecycle state
- * - Emits verifiable on-chain receipts for validator actions
+ * RESPONSIBILITIES
+ * - Register / deregister validators
+ * - Track validator status and epochs
+ * - Provide a canonical validator set for compute + governance
+ * - Emit deterministic telemetry into the Kernel
  *
- * NON-GOALS
- * ---------
- * - No governance voting
- * - No staking or slashing (handled by future modules)
- * - No compute execution
+ * IMPORTANT
+ * - THIS IS A FULL FILE REPLACEMENT
+ * - Replace the entire contents of:
+ *
+ *   contracts/Core/ValidatorManager.sol
  */
 
-contract ValidatorManager {
+import "./NeuroGridKernel.sol";
 
+contract ValidatorManager {
     /*//////////////////////////////////////////////////////////////
-                                ERRORS
+                                TYPES
     //////////////////////////////////////////////////////////////*/
 
-    error NotAdmin();
-    error KernelInactive();
-    error ValidatorExists();
-    error ValidatorNotFound();
-    error ZeroAddress();
+    enum ValidatorStatus {
+        NONE,
+        ACTIVE,
+        SLASHED,
+        REMOVED
+    }
+
+    struct Validator {
+        address validator;
+        ValidatorStatus status;
+        uint256 joinedEpoch;
+        uint256 lastActiveEpoch;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                                STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Reference to NeuroGrid kernel
+    NeuroGridKernel public immutable kernel;
+
+    /// @dev validator address => Validator struct
+    mapping(address => Validator) private _validators;
+
+    /// @dev List of active validator addresses
+    address[] private _activeValidators;
+
+    /// @dev Quick lookup for active validator membership
+    mapping(address => bool) private _isActive;
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event ValidatorAdded(
+    event ValidatorRegistered(
         address indexed validator,
-        string metadataURI,
-        uint256 timestamp
+        uint256 epoch
     );
 
     event ValidatorRemoved(
         address indexed validator,
-        uint256 timestamp
+        uint256 epoch
     );
 
-    event ValidatorStatusUpdated(
+    event ValidatorSlashed(
         address indexed validator,
-        bool active,
-        uint256 timestamp
+        uint256 epoch
     );
-
-    /*//////////////////////////////////////////////////////////////
-                                STRUCTS
-    //////////////////////////////////////////////////////////////*/
-
-    struct Validator {
-        bool active;
-        string metadataURI; // off-chain credentials, DID, or proof
-        uint256 addedAt;
-        bool exists;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                            STORAGE VARIABLES
-    //////////////////////////////////////////////////////////////*/
-
-    NeuroGridKernel public immutable kernel;
-    address public admin;
-
-    mapping(address => Validator) private validators;
-    address[] private validatorIndex;
 
     /*//////////////////////////////////////////////////////////////
                                 MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
-    modifier onlyAdmin() {
-        if (msg.sender != admin) revert NotAdmin();
-        _;
-    }
-
-    modifier kernelActive() {
-        if (!kernel.isActive()) revert KernelInactive();
+    modifier onlyKernelOwner() {
+        require(msg.sender == kernel.owner(), "NOT_KERNEL_OWNER");
         _;
     }
 
@@ -94,120 +89,118 @@ contract ValidatorManager {
     //////////////////////////////////////////////////////////////*/
 
     constructor(address kernelAddress) {
-        if (kernelAddress == address(0)) revert ZeroAddress();
+        require(kernelAddress != address(0), "INVALID_KERNEL");
         kernel = NeuroGridKernel(kernelAddress);
-        admin = kernel.admin();
     }
 
     /*//////////////////////////////////////////////////////////////
-                        VALIDATOR MANAGEMENT
+                        VALIDATOR LIFECYCLE
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Add a new validator to the registry.
-     *
-     * @param validator Address of validator
-     * @param metadataURI Off-chain identity or credential reference
-     */
-    function addValidator(
-        address validator,
-        string calldata metadataURI
-    ) external onlyAdmin kernelActive {
-        if (validator == address(0)) revert ZeroAddress();
-        if (validators[validator].exists) revert ValidatorExists();
+    function registerValidator(address validator) external onlyKernelOwner {
+        require(validator != address(0), "INVALID_VALIDATOR");
+        require(_validators[validator].status == ValidatorStatus.NONE, "EXISTS");
 
-        validators[validator] = Validator({
-            active: true,
-            metadataURI: metadataURI,
-            addedAt: block.timestamp,
-            exists: true
+        uint256 epoch = kernel.currentEpoch();
+
+        _validators[validator] = Validator({
+            validator: validator,
+            status: ValidatorStatus.ACTIVE,
+            joinedEpoch: epoch,
+            lastActiveEpoch: epoch
         });
 
-        validatorIndex.push(validator);
+        _activeValidators.push(validator);
+        _isActive[validator] = true;
 
-        emit ValidatorAdded(
-            validator,
-            metadataURI,
-            block.timestamp
+        kernel.emitTelemetry(
+            keccak256("VALIDATOR_MANAGER"),
+            keccak256("VALIDATOR_REGISTERED"),
+            abi.encode(validator)
         );
+
+        emit ValidatorRegistered(validator, epoch);
     }
 
-    /**
-     * @notice Disable or re-enable a validator.
-     */
-    function setValidatorStatus(
-        address validator,
-        bool active
-    ) external onlyAdmin {
-        if (!validators[validator].exists) revert ValidatorNotFound();
+    function removeValidator(address validator) external onlyKernelOwner {
+        Validator storage v = _validators[validator];
+        require(v.status == ValidatorStatus.ACTIVE, "NOT_ACTIVE");
 
-        validators[validator].active = active;
+        v.status = ValidatorStatus.REMOVED;
+        _isActive[validator] = false;
 
-        emit ValidatorStatusUpdated(
-            validator,
-            active,
-            block.timestamp
+        _removeFromActiveSet(validator);
+
+        uint256 epoch = kernel.currentEpoch();
+
+        kernel.emitTelemetry(
+            keccak256("VALIDATOR_MANAGER"),
+            keccak256("VALIDATOR_REMOVED"),
+            abi.encode(validator)
         );
+
+        emit ValidatorRemoved(validator, epoch);
     }
 
-    /**
-     * @notice Permanently remove a validator.
-     */
-    function removeValidator(address validator) external onlyAdmin {
-        if (!validators[validator].exists) revert ValidatorNotFound();
+    function slashValidator(address validator) external onlyKernelOwner {
+        Validator storage v = _validators[validator];
+        require(v.status == ValidatorStatus.ACTIVE, "NOT_ACTIVE");
 
-        delete validators[validator];
+        v.status = ValidatorStatus.SLASHED;
+        _isActive[validator] = false;
 
-        emit ValidatorRemoved(
-            validator,
-            block.timestamp
+        _removeFromActiveSet(validator);
+
+        uint256 epoch = kernel.currentEpoch();
+
+        kernel.emitTelemetry(
+            keccak256("VALIDATOR_MANAGER"),
+            keccak256("VALIDATOR_SLASHED"),
+            abi.encode(validator)
         );
+
+        emit ValidatorSlashed(validator, epoch);
+    }
+
+    function touchValidator(address validator) external onlyKernelOwner {
+        Validator storage v = _validators[validator];
+        require(v.status == ValidatorStatus.ACTIVE, "NOT_ACTIVE");
+
+        v.lastActiveEpoch = kernel.currentEpoch();
     }
 
     /*//////////////////////////////////////////////////////////////
-                        VIEW FUNCTIONS
+                            VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function isValidator(address validator) external view returns (bool) {
-        return validators[validator].exists && validators[validator].active;
+    function getValidator(address validator) external view returns (Validator memory) {
+        return _validators[validator];
     }
 
-    function getValidator(address validator)
-        external
-        view
-        returns (Validator memory)
-    {
-        if (!validators[validator].exists) revert ValidatorNotFound();
-        return validators[validator];
+    function isActiveValidator(address validator) external view returns (bool) {
+        return _isActive[validator];
     }
 
-    function getValidatorCount() external view returns (uint256) {
-        return validatorIndex.length;
+    function activeValidators() external view returns (address[] memory) {
+        return _activeValidators;
     }
 
-    function getValidatorAt(uint256 index)
-        external
-        view
-        returns (address)
-    {
-        return validatorIndex[index];
+    function totalActiveValidators() external view returns (uint256) {
+        return _activeValidators.length;
     }
 
     /*//////////////////////////////////////////////////////////////
-                        ADMIN SYNC
+                        INTERNAL UTILITIES
     //////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Sync admin with Kernel admin.
-     */
-    function syncAdmin() external {
-        admin = kernel.admin();
+    function _removeFromActiveSet(address validator) internal {
+        uint256 len = _activeValidators.length;
+        for (uint256 i = 0; i < len; i++) {
+            if (_activeValidators[i] == validator) {
+                _activeValidators[i] = _activeValidators[len - 1];
+                _activeValidators.pop();
+                break;
+            }
+        }
     }
-
-    /*//////////////////////////////////////////////////////////////
-                        STORAGE GAP
-    //////////////////////////////////////////////////////////////*/
-
-    uint256[50] private __gap;
 }
-
