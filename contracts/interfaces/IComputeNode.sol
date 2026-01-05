@@ -47,7 +47,7 @@ interface IComputeNode {
     function lastTaskId() external view returns (bytes32);
 
     /*//////////////////////////////////////////////////////////////
-                            EXECUTION FUNCTIONS
+                        EXECUTION FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Called by authorized executors to begin computation
