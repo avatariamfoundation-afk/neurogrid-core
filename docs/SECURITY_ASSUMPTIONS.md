@@ -1,278 +1,218 @@
-# SECURITY_ASSUMPTIONS.md  
-**NeuroGrid Core – Security Model, Assumptions & Threat Boundaries**
+# SECURITY_ASSUMPTIONS.md
 
-**Status:** Hackathon-Ready / Production-Aligned  
-**Scope:** neurogrid-core  
-**Applies To:** Smart Contracts, Governance, Telemetry, Registries  
-**Last Updated:** 2026-01-02  
+Repository: neurogrid-core  
+Canonical Location: /docs/SECURITY_ASSUMPTIONS.md
 
 ---
 
 ## 1. Purpose
 
-This document defines the **explicit security assumptions** under which NeuroGrid Core operates.
+This document defines the **explicit security assumptions** under which the NeuroGrid protocol is designed, deployed, and evaluated.
 
-It exists to:
-- Make trust boundaries explicit
-- Prevent false security claims
-- Enable judge, auditor, and contributor review
-- Separate *hackathon-safe mode* from *production mode*
+These assumptions are critical for:
+- Auditor review
+- Hackathon judging
+- Governance clarity
+- Real-world deployment readiness
 
-No system is secure without assumptions.  
-This document states them clearly.
-
----
-
-## 2. Security Posture Summary
-
-| Layer | Status |
-|----|----|
-| Smart Contracts | Deterministic, unaudited |
-| Governance | Role-based, bounded |
-| Slashing | Defined, disabled in hackathon |
-| Telemetry | Deterministic, non-authoritative |
-| Cross-Chain | Read-only, no trust delegation |
-| Funds at Risk | None (testnet only) |
+NeuroGrid **does not claim absolute security**. It claims **well-scoped, transparent, and enforceable security boundaries**.
 
 ---
 
-## 3. Threat Model Overview
+## 2. Security Philosophy
 
-NeuroGrid assumes the presence of:
+NeuroGrid follows a **Deterministic Defense Model**:
 
-- Malicious validators
-- Faulty compute nodes
-- Adversarial transaction ordering (MEV)
-- Partial network failure
-- Byzantine off-chain actors
+- Failures are expected
+- Faults are classified, not hidden
+- Enforcement is governed, not hardcoded
+- Security is observable via telemetry
 
-NeuroGrid **does not assume**:
-- Honest majority at all times
-- Trusted off-chain compute
-- Trusted cross-chain relayers
-- Trusted UI or frontend clients
+The protocol assumes **bounded adversaries**, not omnipotent attackers.
 
 ---
 
-## 4. Explicit Trust Assumptions
+## 3. Trust Boundaries
 
-### 4.1 Blockchain Layer (BNB Chain)
+### 3.1 Trusted Components
 
-Assumed:
-- Consensus finality is correct
-- Reorgs are bounded
-- Chain does not censor transactions permanently
+The following are assumed to behave correctly unless explicitly faulted:
 
-Not assumed:
-- Zero MEV
-- Zero downtime
-- Infinite throughput
+- Ethereum / BNB Chain consensus
+- EVM execution correctness
+- Solidity compiler correctness (v0.8.19)
+- Cryptographic primitives (ECDSA, Keccak256)
 
 ---
 
-### 4.2 Smart Contracts
+### 3.2 Semi-Trusted Components
 
-Assumed:
-- Solidity compiler behaves as specified
-- Deployed bytecode matches source
-- Roles are configured correctly at deployment
+These components are trusted **conditionally** and monitored:
 
-Not assumed:
-- Absence of undiscovered bugs
-- Formal verification completeness
-- Audit-level guarantees
+- Validators
+- Compute Nodes
+- DAO Proposal Executors
+- Cross-chain relayers
 
----
-
-### 4.3 Governance Actors
-
-Assumed:
-- DAO roles are known and explicit
-- Admin actions are observable on-chain
-
-Not assumed:
-- Governance participants are benevolent
-- Proposals are economically rational
-- No collusion exists
+Misbehavior is expected and mitigated via slashing.
 
 ---
 
-### 4.4 Validators & Compute Nodes
+### 3.3 Untrusted Components
 
-Assumed:
-- Nodes may behave incorrectly
-- Nodes may go offline
-- Nodes may attempt fraud
+These components are assumed to be adversarial:
 
-Not assumed:
-- Honest execution
-- Accurate off-chain computation
-- Correct telemetry reporting
-
-Mitigation is achieved through:
-- Deterministic fault codes
-- Telemetry correlation
-- Slashing policy (disabled in hackathon)
+- End users
+- External data sources
+- Off-chain computation environments
+- Network transport layers
 
 ---
 
-## 5. Hackathon Safety Mode (Current)
+## 4. Adversary Model
 
-During hackathon deployment:
+NeuroGrid assumes adversaries may:
 
-- ❌ Slashing is disabled
-- ❌ Funds are not escrowed
-- ❌ Upgrades are locked
-- ❌ Governance execution is bounded
-- ✅ Telemetry is enabled
-- ✅ Fault detection is active
-- ✅ Deterministic events are emitted
+- Control one or more compute nodes
+- Attempt false computation submission
+- Attempt validator collusion (minority)
+- Attempt replay or delay attacks
+- Attempt governance spam
 
-This prevents irreversible damage while preserving observability.
+NeuroGrid assumes adversaries **cannot**:
 
----
-
-## 6. Deterministic Telemetry Assumptions
-
-Telemetry events are assumed to be:
-
-- Deterministic
-- Immutable once emitted
-- Observable by anyone
-
-Telemetry is **not assumed** to be:
-- Truth
-- Final judgment
-- Automatic punishment
-
-Telemetry feeds *decision systems*, not enforcement directly.
+- Break cryptography
+- Control majority consensus
+- Forge on-chain events
+- Bypass EVM execution rules
 
 ---
 
-## 7. Slashing & Penalty Model Assumptions
+## 5. Governance Assumptions
 
-Slashing is defined but **inactive**.
+The protocol assumes:
 
-Assumed for future activation:
-- Slashing decisions require on-chain confirmation
-- Fault codes are deterministic
-- Governance can halt slashing
+- DAO governance token distribution is non-captured
+- No single entity controls quorum
+- Emergency governance actions are observable
+- Proposal execution is deterministic
 
-Not assumed:
-- Automatic correctness
-- Zero false positives
-- Fully autonomous punishment
+Governance capture is explicitly classified as a **CRITICAL FAULT**.
 
 ---
 
-## 8. Cross-Chain Security Assumptions
+## 6. Validator Assumptions
 
-Cross-chain telemetry is:
+Validators are assumed to:
 
-- Read-only
-- Non-authoritative
-- Non-binding
+- Be economically rational
+- Prefer rewards over slashing
+- Act independently
 
-Assumed:
-- External chains may lie
-- Relayers may fail
-- Data may be delayed
+Validators are **not** assumed to be honest by default.
 
-Therefore:
-- No funds move cross-chain
-- No governance executes cross-chain
-- No trust is delegated externally
+Fault-based enforcement replaces trust.
 
 ---
 
-## 9. Key Management Assumptions
+## 7. Compute Node Assumptions
 
-Assumed:
-- Deployer keys are controlled securely
-- Admin keys are not reused
-- Keys can be rotated
+Compute nodes are assumed to:
 
-Not assumed:
-- Key holders are infallible
-- Compromise will never occur
+- Occasionally fail
+- Occasionally behave lazily
+- Potentially attempt malicious outputs
 
-Mitigation:
-- Role separation
-- Minimal privileges
-- Governance-gated upgrades
+All compute outputs require:
+- Hash verification
+- Validator attestation
+- Deterministic fault attribution
 
 ---
 
-## 10. Upgrade & Mutation Assumptions
+## 8. Slashing Assumptions
 
-Assumed:
-- Contracts are immutable during hackathon
-- Upgrades require explicit governance approval post-hackathon
+Slashing is assumed to:
 
-Not assumed:
-- Emergency upgrades without process
-- Silent logic mutation
+- Be economically meaningful
+- Be governed, not automatic
+- Be applied after fault verification
+
+Slashing logic is **not embedded directly in core execution paths** to prevent cascading failures.
 
 ---
 
-## 11. Data & Privacy Assumptions
+## 9. Upgradeability Assumptions
 
-NeuroGrid Core assumes:
-- No raw medical data is stored on-chain
-- No PII is processed at protocol level
+NeuroGrid uses **UUPS upgradeability**.
 
-Therefore:
-- HIPAA/GDPR/LGPD risks are minimized
-- Compliance enforcement is off-chain
+Assumptions:
+- Upgrade authority is controlled by governance
+- Upgrade paths are auditable
+- No silent upgrades are permitted
 
-On-chain data is limited to:
-- Hashes
-- Metadata
-- Receipts
-- Deterministic identifiers
+Upgrade abuse is classified as a **CRITICAL SECURITY FAULT**.
+
+---
+
+## 10. Cross-Chain Assumptions
+
+Cross-chain telemetry assumes:
+
+- Message delivery may be delayed
+- Message ordering may vary
+- Duplicate messages may occur
+
+All cross-chain data must be:
+- Idempotent
+- Deterministically verifiable
+- Non-authoritative by default
+
+---
+
+## 11. Telemetry Assumptions
+
+Telemetry is assumed to be:
+
+- Public
+- Observable
+- Non-private by default
+
+Privacy is enforced at the data layer, not telemetry.
+
+Missing telemetry is treated as a **FAULT**, not a silent failure.
 
 ---
 
 ## 12. Out-of-Scope Threats
 
-Explicitly out of scope:
+NeuroGrid explicitly does NOT protect against:
 
-- UI phishing attacks
-- Social engineering
-- Wallet malware
-- Off-chain data poisoning
-- Regulatory enforcement
-
-These are acknowledged but not mitigated at protocol level.
+- Global network shutdowns
+- Consensus-level attacks
+- Zero-day EVM exploits
+- Compromised developer environments
+- Social engineering of governance members
 
 ---
 
-## 13. Security Maturity Roadmap
+## 13. Audit Readiness Statement
 
-Post-hackathon security hardening includes:
+These assumptions are:
 
-1. Professional smart contract audit
-2. Formal verification of core logic
-3. Slashing activation
-4. Upgrade governance enablement
-5. Bug bounty program
-6. Multi-sig admin controls
-
----
-
-## 14. Final Assertion
-
-NeuroGrid Core makes **no unverifiable security claims**.
-
-All guarantees are:
 - Explicit
-- Observable
-- Bounded
-- Upgradeable only by governance
+- Reviewable
+- Challengeable
 
-This document is a **contract with reviewers, judges, and users**.
+Auditors and judges are encouraged to evaluate NeuroGrid **within these declared bounds**, not hypothetical omnipotent models.
 
 ---
 
-**End of SECURITY_ASSUMPTIONS.md**
+## 14. Status
 
+State: Active  
+Version: v1.0  
+Applies To: Core Protocol  
+Change Control: DAO Governance
+
+---
