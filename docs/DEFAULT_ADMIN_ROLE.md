@@ -1,8 +1,8 @@
-DEFAULT_ADMIN_ROLE.md
+## DEFAULT_ADMIN_ROLE.md
 
-DEFAULT_ADMIN_ROLE.md
 
-1. Purpose
+
+## 1. Purpose
 
 This document formally defines the DEFAULT_ADMIN_ROLE within the NeuroGrid Core protocol.
 
@@ -10,7 +10,8 @@ The DEFAULT_ADMIN_ROLE represents the root authority of the system. It exists to
 
 This role is intentionally powerful, explicitly constrained, and transparently documented.
 
-2. Role Identifier
+
+## 2. Role Identifier
 
 Solidity identifier:
 
@@ -22,7 +23,8 @@ Universally recognized as the system’s root role
 
 Cannot be disabled or removed
 
-3. Core Responsibilities
+
+## 3. Core Responsibilities
 
 The DEFAULT_ADMIN_ROLE is responsible for:
 
@@ -38,7 +40,8 @@ Initializing and recovering critical system parameters
 
 This role does not participate in routine protocol operations.
 
-4. Privileges
+
+## 4. Privileges
 
 A holder of DEFAULT_ADMIN_ROLE may:
 
@@ -60,7 +63,8 @@ Trigger emergency recovery actions
 
 Transfer administrative control to governance systems
 
-5. Explicit Restrictions
+
+## 5. Explicit Restrictions
 
 The DEFAULT_ADMIN_ROLE must never:
 
@@ -76,8 +80,9 @@ Perform day-to-day protocol functions
 
 Operational authority and administrative authority are strictly separated.
 
-6. Role Assignment Model
-6.1 Initial Assignment
+
+##  6. Role Assignment Model
+## 6.1 Initial Assignment
 
 At deployment, DEFAULT_ADMIN_ROLE SHOULD be assigned to:
 
@@ -87,7 +92,7 @@ A DAO-controlled timelock contract
 
 Assignment to a single EOA is strongly discouraged.
 
-6.2 Post-Bootstrap Transition
+## 6.2 Post-Bootstrap Transition
 
 Once the protocol stabilizes:
 
@@ -99,7 +104,8 @@ A DAO-controlled timelock
 
 This transition is considered mandatory for production systems.
 
-7. Upgrade Authority (UUPS)
+
+## 7. Upgrade Authority (UUPS)
 
 DEFAULT_ADMIN_ROLE exclusively controls:
 
@@ -115,7 +121,8 @@ No silent or retroactive upgrades are permitted
 
 Abuse of upgrade authority is classified as a CRITICAL PROTOCOL FAULT.
 
-8. Emergency Powers
+
+## 8. Emergency Powers
 
 In verified emergency scenarios, DEFAULT_ADMIN_ROLE may:
 
@@ -137,7 +144,8 @@ Be reviewable by governance
 
 Emergency authority is corrective, not punitive.
 
-9. Slashing & Governance Interaction
+
+## 9. Slashing & Governance Interaction
 
 DEFAULT_ADMIN_ROLE cannot directly slash participants.
 
@@ -149,7 +157,8 @@ It may escalate issues to governance or emergency committees
 
 Slashing decisions are protocol-driven, not administrator-driven.
 
-10. Threat Model
+
+## 10. Threat Model
 
 Primary risks involving DEFAULT_ADMIN_ROLE:
 
@@ -169,7 +178,8 @@ On-chain telemetry
 
 Public upgrade events
 
-11. Observability & Telemetry
+
+## 11. Observability & Telemetry
 
 All DEFAULT_ADMIN_ROLE actions MUST:
 
@@ -181,7 +191,8 @@ Be compatible with cross-chain telemetry relays
 
 Silence or non-emission is treated as misbehavior.
 
-12. Best Practices
+
+## 12. Best Practices
 
 Minimum 3-of-5 multisig control
 
@@ -191,7 +202,8 @@ Regular key rotation
 
 Continuous monitoring of admin actions
 
-13. Out-of-Scope Authority
+
+## 13. Out-of-Scope Authority
 
 DEFAULT_ADMIN_ROLE does NOT have authority to:
 
@@ -203,7 +215,8 @@ Alter immutable data
 
 Bypass cryptographic guarantees
 
-14. Compliance & Audit Readiness
+
+## 14. Compliance & Audit Readiness
 
 This role definition is:
 
@@ -215,7 +228,8 @@ Governance-transparent
 
 Production-aligned
 
-15. Status
+
+## 15. Status
 
 Role State: Active
 
