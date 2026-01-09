@@ -1,135 +1,211 @@
-# NeuroGrid — Decentralized AI & DeSci Infrastructure on BNB Chain  
-**Built by Aethera BioSync**  
-**BNB Hackathon Submission — Smart Builders Challenge**
-
-NeuroGrid is an open-source decentralized intelligence platform built on **BNB Chain**, combining **AI-driven biosignal analysis**, **DeSci collaboration**, and **Web3 smart contracts** for secure research validation and incentive alignment.
-
-The system is designed to demonstrate **real-world scientific infrastructure** while remaining **hackathon-ready**, modular, and extensible toward production deployment.
+# NeuroGrid  
+**Deterministic Medical Compute Coordination Layer**
 
 ---
 
-## What NeuroGrid Does (In One Sentence)
+## Executive Summary
 
-NeuroGrid enables **AI-generated research outputs** to be **verifiably recorded on-chain**, collaboratively reviewed through **DeSci workflows**, and **rewarded via smart contracts** on BNB Chain.
+**NeuroGrid** is a deterministic, auditable coordination layer for medical-grade computation, artifact validation, and telemetry governance.  
+It is designed to support **trust-minimized medical AI workflows** without performing diagnosis, treatment, or autonomous clinical decision-making.
 
----
+NeuroGrid provides:
+- Deterministic compute registration and execution
+- Verifiable artifact emission and lineage
+- Fault-coded telemetry and slashing enforcement
+- DAO-governed policy control
+- Hackathon-safe token abstraction with a clear post-hackathon transition path
 
-## Core Pillars
-
-### 🧠 AI (MedIntel)
-- Processes biosignal or synthetic biomedical data
-- Generates deterministic analysis outputs
-- Designed for ethical, explainable inference pipelines
-- Outputs are structured for on-chain anchoring
-
-### 🔗 Blockchain (NeuroGrid-Core)
-- Immutable artifact registry
-- ERC20-based incentive mechanism
-- Research contribution tracking
-- Access-controlled state transitions
-- Deployed and tested via Hardhat (BNB-compatible)
-
-### 🧪 DeSci (Collaboration Layer)
-- Open research sharing
-- Contribution validation
-- Incentive alignment
-- Transparent auditability
+This repository represents the **Core Protocol Layer** only.
 
 ---
 
-## System Flow (End-to-End)
+## What NeuroGrid Is (and Is Not)
 
-[User / Research Input]
-↓
-[MedIntel — AI Analysis]
-↓
-[Oracle / Bridge Layer]
-↓
-[NeuroGrid-Core — On-Chain Storage + Incentives]
-↓
-[DeSci Layer — Open Collaboration & Rewards]
+### NeuroGrid **IS**
+- A **coordination protocol** for medical compute
+- A **governance and accountability framework**
+- A **verifiable execution substrate**
+- A **compliance-aware infrastructure layer**
 
-This flow ensures **AI → Blockchain → DeSci** operates without manual intervention.
+### NeuroGrid **IS NOT**
+- A diagnostic system
+- A clinical decision engine
+- A medical device
+- An autonomous AI practitioner
 
----
-
-## Repository Structure
-
-NeuroGrid is composed of **three coordinated repositories**:
-
-### 1️⃣ NeuroGrid-Core (This Repo)
-**Blockchain backbone**
-
-- Smart contracts
-- Artifact registry
-- Tokenized incentives
-- Access control
-- Deployment scripts
-
-📌 *All AI outputs and DeSci references ultimately anchor here.*
+> NeuroGrid does not replace clinicians, regulators, or medical judgment.
 
 ---
 
-### 2️⃣ MedIntel
-**AI analysis engine**
+## Core Objectives
 
-- Biosignal data ingestion (synthetic/demo)
-- Deterministic inference outputs
-- Structured payloads for blockchain anchoring
+1. **Determinism**  
+   Every compute, artifact, and decision is reproducible and traceable.
 
-📌 *Produces verifiable research artifacts.*
+2. **Accountability**  
+   Validators, compute nodes, and governance actors are fault-bound and slashable.
 
----
+3. **Safety-First Design**  
+   No opaque inference. No hidden execution. No silent failure.
 
-### 3️⃣ DeSci
-**Collaboration & sharing layer**
-
-- Dataset sharing
-- Peer collaboration
-- Reward signaling
-- Research lifecycle visibility
-
-📌 *Consumes on-chain artifacts and AI outputs.*
+4. **Hackathon Compliance**  
+   Uses placeholder token naming while preserving real-world viability.
 
 ---
 
-## Hackathon Alignment
+## Architecture Overview
 
-- ✅ Open source (MIT)
-- ✅ BNB Chain compatible
-- ✅ Testnet-ready
-- ✅ Modular & extensible
-- ✅ Real-world infrastructure oriented
-- ✅ No proprietary dependencies
+NeuroGrid is composed of **modular, auditable smart contracts** and off-chain compute nodes governed by deterministic rules.
 
----
+### On-Chain Components
+- **NeuroGridKernel** – Global state coordination
+- **ComputeRegistry** – Compute node registration and lifecycle
+- **ArtifactRegistry** – Artifact issuance and lineage tracking
+- **ValidatorManager** – Validator enrollment, scoring, and slashing
+- **NeuroDAO** – Governance and policy control
+- **ProposalExecutor** – Deterministic proposal execution
+- **Telemetry Interface** – Fault-coded execution reporting
 
-## Deployment Status
-
-### Smart Contract Deployment
-
-**Environment**: Hardhat Local Network  
-**Status**: ✅ Successfully Deployed & Tested  
-
-| Contract | Address | Network |
-|--------|--------|--------|
-| NeuroGridCore | `0x5FbDB2315678afccb333f8a9c45b65d30425ab91f` | Hardhat |
-| MedToken | `0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512` | Hardhat |
-| ResearchIncentives | `0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0` | Hardhat |
-
-✔ 6 transactions executed  
-✔ 100% success rate  
-✔ Cross-contract calls verified  
-
-📄 Full execution proof: **[DEPLOYMENT_PROOF.md](./DEPLOYMENT_PROOF.md)**
+### Off-Chain Components
+- Deterministic compute nodes
+- Signed artifact producers
+- Telemetry emitters
 
 ---
 
-## Quick Start (No-Nonsense)
+## Deterministic Trust Model
 
-```bash
-npm install
-npx hardhat compile
-npx hardhat run scripts/deploy.mjs
-npx hardhat test
+NeuroGrid enforces trust through:
+- Immutable fault codes
+- Slashing-bound validator behavior
+- Explicit failure states
+- No implicit trust assumptions
+
+All trust boundaries are documented and enforced on-chain.
+
+---
+
+## Telemetry & Fault Codes
+
+Every execution path emits:
+- Deterministic telemetry
+- Explicit fault codes
+- Verifiable execution outcomes
+
+No silent success.  
+No silent failure.
+
+See:
+- `FAULT_CODE.md`
+- `DETERMINISTIC_SLASHING_POLICY_SPEC.md`
+- `TELEMETRY.md`
+
+---
+
+## Token Model (Hackathon-Safe)
+
+### During Hackathon
+- **MedToken** (placeholder)
+- Non-speculative
+- Non-listed
+- Used only for governance simulation and validator incentives
+
+### Post-Hackathon (Planned)
+- **ABSToken**
+- Real-world utility token
+- Funded by awarded winnings
+- Intended uses include:
+  - Validator incentives
+  - Governance participation
+  - Telemetry verification
+  - Ecosystem sustainability
+
+> Token transition is explicitly deferred until after regulatory review and audit.
+
+---
+
+## Security Posture
+
+- No upgradeable proxies without DAO approval
+- No privileged execution paths
+- Explicit admin role separation
+- Defense-in-depth design
+
+See:
+- `SECURITY_MODEL.md`
+- `DEFAULT_ADMIN_ROLE.md`
+- `GRID_ADMIN_ROLE.md`
+- `STRUCTURAL_HARDENING.md`
+
+---
+
+## Testing & Validation
+
+The system includes a full test matrix covering:
+- Happy paths
+- Permission failures
+- State-guard violations
+- Fault escalation paths
+
+See:
+- `TEST_MATRIX.md`
+
+---
+
+## Deployment Notes
+
+NeuroGrid is designed for:
+- EVM-compatible chains
+- Cross-chain telemetry compatibility
+- Deterministic deployment order
+
+See:
+- `DEPLOYMENT_NOTES.md`
+
+---
+
+## Regulatory & Ethical Positioning
+
+- Infrastructure-only
+- No medical claims
+- No patient data handling
+- Designed to **support** compliance, not replace it
+
+---
+
+## Judge-Facing Clarity
+
+This submission demonstrates:
+- Strong system design discipline
+- Deterministic trust enforcement
+- Clear separation between infrastructure and clinical use
+- Responsible handling of post-hackathon funding intent
+
+Awarded funds will be directed toward:
+- Independent medical AI audit
+- Legal and IP structuring
+- Infrastructure hardening
+- Validator network maturation
+- Future compliant ecosystem expansion
+
+---
+
+## Repository Status
+
+- Core protocol: **Complete**
+- Documentation: **Hardened**
+- Tests: **Defined**
+- Demo & Interface: **Next Phase**
+
+---
+
+## Final Note
+
+NeuroGrid is intentionally conservative.
+
+It is built to **earn trust before demanding adoption**.
+
+---
+
+**Status:** Core Protocol – Finalized 
 
