@@ -1,1 +1,276 @@
 
+# NeuroGrid Demo UI & Screens
+## Judge-Facing Interface Blueprint (Non-Clinical)
+
+**File location:** `demo/UI/SCREENS.md`
+
+---
+
+## 1. Purpose of the Demo UI
+
+This UI is **not a product interface** and **not a medical dashboard**.
+
+Its purpose is to:
+- Visually demonstrate system flow
+- Allow judges to *see* NeuroGrid working
+- Expose artifacts, telemetry, and governance
+- Provide clarity without overstating capability
+
+The UI is **read-only**, **non-clinical**, and **deterministic**.
+
+---
+
+## 2. Design Principles
+
+- **Transparency over polish**
+- **Explainability over complexity**
+- **Audit-first, not UX-first**
+- **No medical interpretation**
+- **No real data**
+
+Color, layout, and interactions are intentionally minimal.
+
+---
+
+## 3. Demo UI Architecture (High-Level)
+
+Frontend (Static / React / Next.js)
+↓
+Read-only API / Mock Service
+↓
+Indexed On-Chain Events (BNB Testnet / Local)
+
+No wallet connection is required for judges.
+
+---
+
+## 4. Screen 1: Landing / System Overview
+
+### Screen Name
+`System Overview`
+
+### Purpose
+Give judges immediate context.
+
+### Elements
+- NeuroGrid logo + tagline
+- Short disclaimer banner:
+  > “This demo uses synthetic data only. No clinical inference.”
+- High-level system diagram
+- Buttons:
+  - View Demo Run
+  - View Artifacts
+  - View Governance
+  - View Telemetry
+
+---
+
+## 5. Screen 2: Demo Run Selector
+
+### Screen Name
+`Synthetic Demo Runs`
+
+### Purpose
+Show reproducible executions.
+
+### Elements
+- Table of demo runs:
+  - Run ID
+  - Timestamp
+  - Deterministic Hash
+  - Status (Completed / Failed)
+- “View Details” action
+
+### Notes
+All runs are pre-generated and immutable.
+
+---
+
+## 6. Screen 3: Synthetic Input Viewer
+
+### Screen Name
+`Synthetic Input`
+
+### Purpose
+Show *what went in*.
+
+### Elements
+- JSON viewer (read-only)
+- Dataset metadata:
+  - Dataset name
+  - Seed
+  - Schema version
+- Hash checksum display
+
+### Guardrails
+- No charts implying biology
+- No “signal interpretation”
+
+---
+
+## 7. Screen 4: Inference Output Viewer
+
+### Screen Name
+`Deterministic Inference Output`
+
+### Purpose
+Show *what came out*.
+
+### Elements
+- Artifact summary:
+  - Artifact ID
+  - Model ID
+  - Deterministic hash
+  - Confidence bucket (LOW / MEDIUM / HIGH)
+- Raw output JSON
+- Explicit disclaimer:
+  > “Output has no biological or medical meaning.”
+
+---
+
+## 8. Screen 5: Artifact Registry
+
+### Screen Name
+`Artifact Registry`
+
+### Purpose
+Demonstrate on-chain registration.
+
+### Elements
+- List of registered artifacts
+- Fields:
+  - Artifact ID
+  - Source module
+  - Block number
+  - Timestamp
+- Link to BNB Testnet explorer (read-only)
+
+---
+
+## 9. Screen 6: Validator Attestations
+
+### Screen Name
+`Validator Attestations`
+
+### Purpose
+Show decentralized verification.
+
+### Elements
+- Validator list:
+  - Validator ID
+  - Role
+  - Status
+- Attestation results:
+  - ACCEPTED / REJECTED
+  - Fault code (if any)
+
+---
+
+## 10. Screen 7: Telemetry & Events
+
+### Screen Name
+`Telemetry & Events`
+
+### Purpose
+Expose system observability.
+
+### Elements
+- Event timeline:
+  - ArtifactRegistered
+  - ValidatorAttested
+  - ComputeLogged
+  - FaultEmitted
+- Filter by:
+  - Event type
+  - Artifact ID
+- Raw event payload viewer
+
+---
+
+## 11. Screen 8: Governance View (Read-Only)
+
+### Screen Name
+`Governance Snapshot`
+
+### Purpose
+Show that governance exists without interaction.
+
+### Elements
+- Active proposals (if any)
+- Governance parameters:
+  - Slashing enabled (Yes/No)
+  - Validator quorum
+- No voting buttons
+
+---
+
+## 12. Screen 9: Fault Explorer (If Triggered)
+
+### Screen Name
+`Fault Explorer`
+
+### Purpose
+Show deterministic failure handling.
+
+### Elements
+- Fault code
+- Severity
+- Triggering condition
+- Linked artifact / validator
+- Resolution state
+
+---
+
+## 13. Global UI Disclaimers (Persistent)
+
+Footer text on all screens:
+
+> “NeuroGrid demo environment. Synthetic data only. No medical use. Infrastructure demonstration.”
+
+---
+
+## 14. Demo Flow for Judges (Suggested)
+
+1. Open System Overview
+2. Select a Demo Run
+3. View Synthetic Input
+4. View Inference Output
+5. View Artifact Registry entry
+6. Inspect Validator Attestations
+7. Review Telemetry Events
+
+Total walkthrough time: **5–7 minutes**
+
+---
+
+## 15. What This UI Proves
+
+- System coherence
+- Determinism
+- Auditability
+- Governance readiness
+- Ethical restraint
+
+It intentionally avoids:
+- Claims
+- Predictions
+- Visual persuasion
+
+---
+
+## 16. Implementation Notes (Post-Hackathon)
+
+This UI can later evolve into:
+- Admin dashboards
+- Research portals
+- Regulated interfaces
+
+But **not during this hackathon**.
+
+---
+
+**Document Status:** Final  
+**Audience:** Judges, Reviewers  
+**Scope:** Demo UI (Non-Clinical, Read-Only)  
+
+
