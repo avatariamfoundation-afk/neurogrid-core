@@ -1,1 +1,217 @@
+# UI_MOCKUPS.md
+## Judge-Facing Demo Interface (Static / Read-Only)
+
+---
+
+## 1. Purpose of These Mockups
+
+These mockups are **conceptual UI layouts** intended to:
+
+- Visually anchor the demo experience
+- Guide rapid frontend implementation
+- Help judges understand system flow at a glance
+- Avoid any implication of clinical or diagnostic use
+
+They are **wireframe-level**, not final product designs.
+
+---
+
+## 2. Global UI Characteristics
+
+- **Theme:** Dark, neutral, technical
+- **Typography:** Sans-serif (Inter / IBM Plex / system font)
+- **Color usage:**
+  - Blue → system actions
+  - Green → verified / completed
+  - Amber → warnings
+  - Red → faults
+- **No charts resembling medical signals**
+- **No real-time data**
+
+---
+
+## 3. Mockup 1 — System Overview (Landing)
+
+┌─────────────────────────────────────────────┐
+│ NeuroGrid │
+│ Decentralized AI & DeSci Infrastructure │
+│---------------------------------------------│
+│ [ Disclaimer: Synthetic demo only ] │
+│ │
+│ [ System Architecture Diagram ] │
+│ │
+│ ▢ AI Inference → ▢ Artifact → ▢ Validation │
+│ │
+│ [ View Demo Runs ] [ View Artifacts ] │
+│ [ Telemetry ] [ Governance ] │
+└─────────────────────────────────────────────┘
+
+---
+
+## 4. Mockup 2 — Demo Run Selector
+
+┌─────────────────────────────────────────────┐
+│ Demo Runs │
+│---------------------------------------------│
+│ Run ID | Timestamp | Status │
+│---------------------------------------------│
+│ RUN-001 | 2026-01-02 | ✓ Completed │
+│ RUN-002 | 2026-01-02 | ✓ Completed │
+│ RUN-003 | 2026-01-03 | ✕ Faulted │
+│---------------------------------------------│
+│ [ View Selected Run ] │
+└─────────────────────────────────────────────┘
+
+---
+
+## 5. Mockup 3 — Synthetic Input Viewer
+
+┌─────────────────────────────────────────────┐
+│ Synthetic Input                             │
+│---------------------------------------------│
+│ Dataset: SYNTH-BIOSYNC-V1                  │
+│ Seed: 0xA91F...                             │
+│ Schema: v1.0                               │
+│---------------------------------------------│
+│ {                                           │
+│   "input_vector": [...],                    │
+│   "normalization": "fixed",                 │
+│   "source": "synthetic"                     │
+│ }                                           │
+└─────────────────────────────────────────────┘
+
+---
+
+## 6. Mockup 4 — Inference Output
+
+┌─────────────────────────────────────────────┐
+│ Deterministic Inference Output              │
+│---------------------------------------------│
+│ Artifact ID: ART-0x91F3...                  │
+│ Model ID: MODEL-DEMO-V1                    │
+│ Hash: 0xE3A1...                             │
+│ Confidence Bucket: MEDIUM                  │
+│---------------------------------------------│
+│ {                                           │
+│   "output_vector": [...],                   │
+│   "confidence": 0.64                        │
+│ }                                           │
+│---------------------------------------------│
+│ ⚠ No medical interpretation                 │
+└─────────────────────────────────────────────┘
+
+---
+
+## 7. Mockup 5 — Artifact Registry
+
+┌─────────────────────────────────────────────┐
+│ Artifact Registry                           │
+│---------------------------------------------│
+│ Artifact ID | Block | Timestamp             │
+│---------------------------------------------│
+│ ART-001     | 12345 | 2026-01-02             │
+│ ART-002     | 12348 | 2026-01-02             │
+│---------------------------------------------│
+│ [ View on BNB Testnet Explorer ]             │
+└─────────────────────────────────────────────┘
+
+---
+
+## 8. Mockup 6 — Validator Attestations
+
+┌─────────────────────────────────────────────┐
+│ Validator Attestations                      │
+│---------------------------------------------│
+│ Validator | Role       | Result             │
+│---------------------------------------------│
+│ VAL-01    | Compute    | ✓ Accepted         │
+│ VAL-02    | Audit      | ✓ Accepted         │
+│ VAL-03    | Integrity  | ✕ Rejected (F-02) │
+└─────────────────────────────────────────────┘
+
+---
+
+## 9. Mockup 7 — Telemetry & Events
+
+┌─────────────────────────────────────────────┐
+│ Telemetry Events                            │
+│---------------------------------------------│
+│ Time        | Event                         │
+│---------------------------------------------│
+│ 12:01:02    | ArtifactRegistered            │
+│ 12:01:05    | ValidatorAttested             │
+│ 12:01:08    | ComputeLogged                 │
+│---------------------------------------------│
+│ [ View Raw Event Payload ]                  │
+└─────────────────────────────────────────────┘
+
+---
+
+## 10. Mockup 8 — Governance Snapshot
+
+┌─────────────────────────────────────────────┐
+│ Governance Snapshot                         │
+│---------------------------------------------│
+│ Active Proposals: 0                         │
+│ Validator Quorum: 3 / 5                     │
+│ Slashing Enabled: Yes                       │
+│---------------------------------------------│
+│ Governance is view-only in demo             │
+└─────────────────────────────────────────────┘
+
+---
+
+## 11. Mockup 9 — Fault Explorer
+
+┌─────────────────────────────────────────────┐
+│ Fault Explorer                              │
+│---------------------------------------------│
+│ Fault Code: F-02                            │
+│ Severity: Medium                            │
+│ Trigger: Invalid Attestation                │
+│ Linked Artifact: ART-003                    │
+│ Resolution: Pending                         │
+└─────────────────────────────────────────────┘
+
+---
+
+## 12. Judge Walkthrough (UI)
+
+1. Landing → Overview
+2. Demo Runs → Select run
+3. Synthetic Input → Inspect
+4. Inference Output → Inspect
+5. Artifact Registry → Verify
+6. Validator Attestations → Review
+7. Telemetry → Observe events
+8. Fault Explorer (optional)
+
+---
+
+## 13. Implementation Notes
+
+- Can be implemented in:
+  - Static HTML
+  - React / Next.js
+  - Tailwind or basic CSS
+- No wallet integration required
+- No backend mutations
+
+---
+
+## 14. What These Mockups Communicate
+
+- System maturity
+- Ethical boundaries
+- Engineering discipline
+- Judge-first clarity
+
+---
+
+**Document Status:** Final  
+**Audience:** Judges, Frontend Implementers  
+**Scope:** Demo UI Mockups (Non-Clinical)
+
+
+
 
