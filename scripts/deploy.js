@@ -1,28 +1,29 @@
 const { ethers } = require("hardhat");
-const fs = require('fs');
-const configPath = './config/app.js';
 
 async function main() {
   console.log("Deploying NeuroGrid-Core contracts...");
 
+  const [deployer] = await ethers.getSigners();
+  console.log("Deployer:", deployer.address);
+
+  // ---- MedToken ----
   const MedToken = await ethers.getContractFactory("MedToken");
-  const neuroToken = await MedToken.deploy();
-  await neuroToken.deployed();
-  console.log("NeuroToken deployed at:", neuroToken.address);
+  const medToken = await MedToken.deploy();
+  await medToken.waitForDeployment();
 
-  const NeuroGrid = await ethers.getContractFactory("NeuroGrid");
-  const neuroGrid = await NeuroGrid.deploy(neuroToken.address);
-  await neuroGrid.deployed();
-  console.log("NeuroGrid deployed at:", neuroGrid.address);
+  const medTokenAddress = await medToken.getAddress();
+  console.log("MedToken deployed to:", medTokenAddress);
 
-  // Update config with token address
-  const config = require(configPath);
-  config.tokenContractAddress = neuroToken.address;
-  fs.writeFileSync(configPath, `module.exports = ${JSON.stringify(config, null, 2)};`);
+  // ---- NeuroGridCore ----
+  const NeuroGridCore = await ethers.getContractFactory("NeuroGridCore");
+  const neuroGridCore = await NeuroGridCore.deploy(medTokenAddress);
+  await neuroGridCore.waitForDeployment();
+
+  const neuroGridCoreAddress = await neuroGridCore.getAddress();
+  console.log("NeuroGridCore deployed to:", neuroGridCoreAddress);
 }
 
-main()
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

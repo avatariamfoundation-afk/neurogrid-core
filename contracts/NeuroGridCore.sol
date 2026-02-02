@@ -1,39 +1,28 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.22;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "./MedToken.sol";
 
-/**
- * @title NeuroGridCore
- * @notice Core control contract for NeuroGrid protocol
- * @dev OpenZeppelin v5 compatible (non-upgradeable)
- */
-contract NeuroGridCore is Ownable, Pausable {
-    /*//////////////////////////////////////////////////////////////
-                                EVENTS
-    //////////////////////////////////////////////////////////////*/
+contract NeuroGridCore {
+    MedToken public medToken;
+    address public owner;
 
-    event SystemPaused(address indexed caller);
-    event SystemUnpaused(address indexed caller);
+    event Initialized(address indexed medTokenAddress, address indexed owner);
 
-    /*//////////////////////////////////////////////////////////////
-                              CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
+    constructor(address _medToken) {
+        require(_medToken != address(0), "Invalid MedToken address");
+        medToken = MedToken(_medToken);
+        owner = msg.sender;
 
-    constructor(address initialOwner) Ownable(initialOwner) {}
-
-    /*//////////////////////////////////////////////////////////////
-                              ADMIN
-    //////////////////////////////////////////////////////////////*/
-
-    function pause() external onlyOwner {
-        _pause();
-        emit SystemPaused(msg.sender);
+        emit Initialized(_medToken, owner);
     }
 
-    function unpause() external onlyOwner {
-        _unpause();
-        emit SystemUnpaused(msg.sender);
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    function getMedToken() external view returns (address) {
+        return address(medToken);
     }
 }
