@@ -55,6 +55,8 @@ This repository represents the **Core Protocol Layer** only.
 
 ## Architecture Overview
 
+Note: Some listed components represent finalized protocol specifications and interfaces. The hackathon submission includes the deployed Core contracts required to demonstrate deterministic coordination, token binding, and registry mechanics.
+
 NeuroGrid is composed of **modular, auditable smart contracts** and off-chain compute nodes governed by deterministic rules.
 
 ### On-Chain Components
@@ -152,7 +154,10 @@ See:
 
 ---
 
+
 ## Deployment Notes
+> opBNB Testnet (hackathon deployment target)
+No addresses needed in README
 
 NeuroGrid is designed for:
 - EVM-compatible chains
@@ -194,7 +199,7 @@ Awarded funds will be directed toward:
 
 - Core protocol: **Complete**
 - Documentation: **Hardened**
-- Tests: **Defined**
+- Tests: *Defined (partial implementation)
 - Demo & Interface: **Next Phase**
 
 ---
