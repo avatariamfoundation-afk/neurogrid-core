@@ -1,216 +1,386 @@
-# NeuroGrid  
-**Deterministic Medical Compute Coordination Layer**
+NeuroGrid-Core
 
----
+Deterministic Medical Compute & Governance Infrastructure
 
-## Executive Summary
+Executive Summary
 
-**NeuroGrid** is a deterministic, auditable coordination layer for medical-grade computation, artifact validation, and telemetry governance.  
-It is designed to support **trust-minimized medical AI workflows** without performing diagnosis, treatment, or autonomous clinical decision-making.
+NeuroGrid-Core is the deterministic on-chain coordination layer of the NeuroGrid ecosystem.
 
-NeuroGrid provides:
-- Deterministic compute registration and execution
-- Verifiable artifact emission and lineage
-- Fault-coded telemetry and slashing enforcement
-- DAO-governed policy control
-- Hackathon-safe token abstraction with a clear post-hackathon transition path
+It provides a trust-minimized, auditable infrastructure for coordinating medical-grade compute, validator accountability, artifact lineage, and governance — without performing diagnosis, treatment, or autonomous clinical decision-making.
 
-This repository represents the **Core Protocol Layer** only.
+NeuroGrid-Core is designed to support compliant medical AI workflows, research validation, and decentralized scientific coordination while remaining strictly infrastructure-only.
 
----
+This repository contains the Core Protocol Layer.
 
-## What NeuroGrid Is (and Is Not)
+System Positioning (Critical)
 
-### NeuroGrid **IS**
-- A **coordination protocol** for medical compute
-- A **governance and accountability framework**
-- A **verifiable execution substrate**
-- A **compliance-aware infrastructure layer**
+NeuroGrid is intentionally split into three distinct layers:
 
-### NeuroGrid **IS NOT**
-- A diagnostic system
-- A clinical decision engine
-- A medical device
-- An autonomous AI practitioner
+DeSci (Silent Governance & Research Layer)
+        ↓
+NeuroGrid-Core (On-Chain Deterministic Infrastructure)
+        ↓
+MedIntel (Off-Chain Medical Intelligence & Analytics)
 
-> NeuroGrid does not replace clinicians, regulators, or medical judgment.
 
----
+Each layer is independently valid, loosely coupled, and explicitly constrained.
 
-## Core Objectives
+What NeuroGrid-Core IS
 
-1. **Determinism**  
-   Every compute, artifact, and decision is reproducible and traceable.
+A deterministic coordination protocol
 
-2. **Accountability**  
-   Validators, compute nodes, and governance actors are fault-bound and slashable.
+An accountability and slashing framework
 
-3. **Safety-First Design**  
-   No opaque inference. No hidden execution. No silent failure.
+A verifiable execution and artifact registry
 
-4. **Hackathon Compliance**  
-   Uses placeholder token naming while preserving real-world viability.
+A governance enforcement layer
 
----
+A compliance-aware infrastructure substrate
 
-## Architecture Overview
+What NeuroGrid-Core IS NOT
 
-Note: Some listed components represent finalized protocol specifications and interfaces. The hackathon submission includes the deployed Core contracts required to demonstrate deterministic coordination, token binding, and registry mechanics.
+❌ A diagnostic system
 
-NeuroGrid is composed of **modular, auditable smart contracts** and off-chain compute nodes governed by deterministic rules.
+❌ A medical device
 
-### On-Chain Components
-- **NeuroGridKernel** – Global state coordination
-- **ComputeRegistry** – Compute node registration and lifecycle
-- **ArtifactRegistry** – Artifact issuance and lineage tracking
-- **ValidatorManager** – Validator enrollment, scoring, and slashing
-- **NeuroDAO** – Governance and policy control
-- **ProposalExecutor** – Deterministic proposal execution
-- **Telemetry Interface** – Fault-coded execution reporting
+❌ A clinical decision engine
 
-### Off-Chain Components
-- Deterministic compute nodes
-- Signed artifact producers
-- Telemetry emitters
+❌ An autonomous AI practitioner
 
----
+❌ A patient data processor
 
-## Deterministic Trust Model
+NeuroGrid-Core enforces rules — it does not interpret medicine.
 
-NeuroGrid enforces trust through:
-- Immutable fault codes
-- Slashing-bound validator behavior
-- Explicit failure states
-- No implicit trust assumptions
+Core Design Principles
+1. Determinism
 
-All trust boundaries are documented and enforced on-chain.
+Every action is:
 
----
+Reproducible
 
-## Telemetry & Fault Codes
+Traceable
 
-Every execution path emits:
-- Deterministic telemetry
-- Explicit fault codes
-- Verifiable execution outcomes
+State-bound
 
-No silent success.  
+Explicitly logged
+
+No hidden execution paths.
+No implicit trust.
+
+2. Accountability
+
+Validators, compute nodes, and governance actors are:
+
+Role-scoped
+
+Fault-coded
+
+Slashable
+
+Auditable
+
+No silent success.
 No silent failure.
 
+3. Safety-First Architecture
+
+Infrastructure-only scope
+
+No autonomous inference
+
+No clinical claims
+
+Explicit failure states
+
+4. Hackathon & Audit Readiness
+
+Clear separation of concerns
+
+Placeholder token abstraction
+
+Frozen deployment states
+
+Judge-safe documentation
+
+Architecture Overview
+Layer 1 — DeSci (External, Silent Root)
+
+Not contained in this repository
+
+The DeSci layer defines:
+
+Research lifecycle specifications
+
+Scientific governance frameworks
+
+Ethics and compliance constraints
+
+Funding and attribution models
+
+Important:
+
+DeSci does not deploy contracts
+
+DeSci does not execute logic
+
+DeSci provides context, not control
+
+NeuroGrid-Core may reference DeSci outputs by hash or policy, but never depends on them for correctness.
+
+Layer 2 — NeuroGrid-Core (This Repository)
+
+Deterministic On-Chain Infrastructure
+
+Primary Contracts
+
+NeuroGridKernel
+Global protocol state coordination
+
+ComputeRegistry
+Registration and lifecycle management of compute nodes
+
+ArtifactRegistry
+Artifact issuance, lineage, and verification
+
+ValidatorManager
+Validator enrollment, scoring, slashing, and fault escalation
+
+NeuroDAO
+Governance and policy enforcement
+
+ProposalExecutor
+Deterministic proposal execution
+
+Telemetry Interface
+Fault-coded execution reporting
+
+Core Responsibilities
+
+Enforce governance decisions
+
+Register and constrain actors
+
+Record artifacts and lineage
+
+Emit deterministic telemetry
+
+Apply slashing and penalties
+
+Explicit Non-Responsibilities
+
+Medical interpretation
+
+Scientific truth validation
+
+AI model execution
+
+Patient data handling
+
+Layer 3 — MedIntel (External, Downstream)
+
+Not contained in this repository
+
+MedIntel consists of:
+
+AI models
+
+Medical analytics
+
+RPM and inference pipelines
+
+Constraints:
+
+Consumes only approved artifacts
+
+Emits signed telemetry
+
+Cannot modify governance
+
+Cannot bypass fault logic
+
+MedIntel is downstream and subordinate to Core enforcement.
+
+Deterministic Trust Model
+
+Trust is enforced through:
+
+Immutable fault codes
+
+Explicit role separation
+
+Slashing-bound behavior
+
+Verifiable execution paths
+
+No implicit authority
+
+All trust boundaries are:
+
+Documented
+
+Enforced on-chain
+
+Auditable
+
+Telemetry & Fault Codes
+
+Every execution emits:
+
+Deterministic telemetry
+
+Explicit fault codes
+
+Verifiable outcomes
+
+There is no silent success
+There is no silent failure
+
 See:
-- `FAULT_CODE.md`
-- `DETERMINISTIC_SLASHING_POLICY_SPEC.md`
-- `TELEMETRY.md`
 
----
+TELEMETRY.md
 
-## Token Model (Hackathon-Safe)
+FAULT_CODE.md
 
-### During Hackathon
-- **MedToken** (placeholder)
-- Non-speculative
-- Non-listed
-- Used only for governance simulation and validator incentives
+DETERMINISTIC_SLASHING_POLICY_SPEC.md
 
-### Post-Hackathon (Planned)
-- **ABSToken**
-- Real-world utility token
-- Funded by awarded winnings
-- Intended uses include:
-  - Validator incentives
-  - Governance participation
-  - Telemetry verification
-  - Ecosystem sustainability
+Token Model (Hackathon-Safe)
+During Hackathon
 
-> Token transition is explicitly deferred until after regulatory review and audit.
+MedToken
 
----
+Non-speculative
 
-## Security Posture
+Non-listed
 
-- No upgradeable proxies without DAO approval
-- No privileged execution paths
-- Explicit admin role separation
-- Defense-in-depth design
+Governance and validator simulation only
 
-See:
-- `SECURITY_MODEL.md`
-- `DEFAULT_ADMIN_ROLE.md`
-- `GRID_ADMIN_ROLE.md`
-- `STRUCTURAL_HARDENING.md`
+Post-Hackathon (Planned)
 
----
+ABSToken
 
-## Testing & Validation
+Utility-based
 
-The system includes a full test matrix covering:
-- Happy paths
-- Permission failures
-- State-guard violations
-- Fault escalation paths
+Subject to audit and regulatory review
 
-See:
-- `TEST_MATRIX.md`
+Intended for:
 
----
+Validator incentives
 
+Governance participation
 
-## Deployment Notes
-> opBNB Testnet (hackathon deployment target)
-No addresses needed in README
+Telemetry verification
 
-NeuroGrid is designed for:
-- EVM-compatible chains
-- Cross-chain telemetry compatibility
-- Deterministic deployment order
+Ecosystem sustainability
+
+Token transition is explicitly deferred.
+
+Security Posture
+
+No privileged execution paths
+
+Explicit admin role separation
+
+No silent upgrades
+
+DAO-bound governance
+
+Defense-in-depth design
 
 See:
-- `DEPLOYMENT_NOTES.md`
 
----
+SECURITY_MODEL.md
 
-## Regulatory & Ethical Positioning
+DEFAULT_ADMIN_ROLE.md
 
-- Infrastructure-only
-- No medical claims
-- No patient data handling
-- Designed to **support** compliance, not replace it
+GRID_ADMIN_ROLE.md
 
----
+STRUCTURAL_HARDENING.md
 
-## Judge-Facing Clarity
+Testing & Validation
 
-This submission demonstrates:
-- Strong system design discipline
-- Deterministic trust enforcement
-- Clear separation between infrastructure and clinical use
-- Responsible handling of post-hackathon funding intent
+The protocol includes a defined test matrix covering:
 
-Awarded funds will be directed toward:
-- Independent medical AI audit
-- Legal and IP structuring
-- Infrastructure hardening
-- Validator network maturation
-- Future compliant ecosystem expansion
+Happy paths
 
----
+Permission violations
 
-## Repository Status
+State-guard enforcement
 
-- Core protocol: **Complete**
-- Documentation: **Hardened**
-- Tests: *Defined (partial implementation)
-- Demo & Interface: **Next Phase**
+Fault escalation
 
----
+Slashing logic
 
-## Final Note
+See:
 
-NeuroGrid is intentionally conservative.
+TEST_MATRIX.md
 
-It is built to **earn trust before demanding adoption**.
+Deployment & Audit Status
 
----
+Local deployment: Complete
 
-**Status:** Core Protocol – Finalized 
+opBNB Testnet deployment: Complete
 
+Audit freeze: Applied
+
+Deterministic state snapshot: Recorded
+
+See:
+
+DEPLOYMENT_NOTES.md
+
+Regulatory & Ethical Positioning
+
+Infrastructure-only
+
+No medical claims
+
+No patient data
+
+Designed to support compliance, not replace it
+
+NeuroGrid-Core is not a medical device.
+
+Judge-Facing Clarity
+
+This repository demonstrates:
+
+Strong system design discipline
+
+Deterministic trust enforcement
+
+Clear separation between infrastructure and intelligence
+
+Responsible post-hackathon planning
+
+Awarded funds are intended for:
+
+Independent security audits
+
+Medical AI compliance review
+
+Infrastructure hardening
+
+Validator network maturation
+
+Future compliant expansion
+
+Repository Status
+
+Core protocol: Finalized
+
+Architecture: Frozen
+
+Documentation: Hardened
+
+Deployment: Verified
+
+Demo & UI: Next Phase
+
+Final Statement
+
+NeuroGrid-Core is intentionally conservative.
+
+It is designed to earn trust before demanding adoption.
+
+Status:
+NeuroGrid-Core — Audit-Frozen, Hackathon-Ready
