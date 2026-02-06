@@ -14,6 +14,8 @@ Reason:
 
 ### This is a deliberate, documented decision.
 
+**Audit Status:** Core logic frozen under tag `v0.1.0-hackathon-freeze`
+
 ---
 
 ## NeuroGrid-Core (Summary)
