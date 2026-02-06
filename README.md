@@ -1,3 +1,12 @@
+## Quick Start for Judges
+
+➡️ **Start here:**  
+[SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md)
+
+This one-page document explains the full NeuroGrid system, live deployment, and design intent in under 2 minutes.
+
+---
+
 ## NeuroGrid-Core (Summary)
 NeuroGrid is a deterministic coordination protocol for medical-grade computation, governance, and verifiable artifacts.
 It enables trust-minimized medical AI infrastructure without performing diagnosis, treatment, or autonomous clinical decision-making.
