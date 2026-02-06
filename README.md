@@ -133,6 +133,27 @@ It is infrastructure, not a medical device.
 This repository (neurogrid-core) contains the on-chain core protocol deployed on opBNB Testnet.
 
 ---
+## CI / Automation Status (Hackathon Scope)
+
+Continuous Integration (CI) workflows are intentionally disabled during the hackathon submission window.
+
+### Reasoning:
+- Core protocol logic is finalized, frozen, and deployed on opBNB testnet
+- No further contract mutations are permitted pre-judging
+- CI scaffolding (extended tests, fuzzing, gas profiling) is scheduled post-hackathon
+
+### This avoids false-negative CI signals caused by:
+- intentionally stubbed MedIntel modules
+- placeholder governance and validator flows
+- environment-specific testnet configuration
+
+### CI will be re-enabled post-hackathon with:
+- full test matrix
+- coverage reports
+- security scanning
+- upgrade safety checks
+
+---
 
 ## What NeuroGrid Is (and Is Not)
 ### NeuroGrid IS
