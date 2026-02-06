@@ -1,9 +1,18 @@
 ## Quick Start for Judges
-
 ➡️ **Start here:**  
 [SYSTEM_OVERVIEW.md](./SYSTEM_OVERVIEW.md)
 
 This one-page document explains the full NeuroGrid system, live deployment, and design intent in under 2 minutes.
+
+---
+## CI Status (Hackathon Note)
+Continuous Integration workflows are intentionally disabled during the hackathon phase.
+Reason:
+- Core logic is frozen for audit
+- MedIntel and DeSci are non-executing by design
+- CI re-enabled post-hackathon with full test coverage
+
+### This is a deliberate, documented decision.
 
 ---
 
