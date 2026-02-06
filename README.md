@@ -22,28 +22,53 @@ No unsafe claims.
 ---
 
 ## System Architecture (Simplified)
-┌────────────────────────────────────────┐
-│ DeSci Layer (Silent / Policy Only)     │
-│ Ethics • Governance • Provenance       │
-│ No execution • No tokens               │
-└────────────────────────────────────────┘
-                 ▲
-                 │ policy constraints
-                 │
-┌────────────────────────────────────────┐
-│ MedIntel Layer (Stubbed Interface)     │
-│ AI pipeline stubs • Analytics adapters│
-│ No models • No patient data            │
-└────────────────────────────────────────┘
-                 ▲
-                 │ verifiable artifacts
-                 │
-┌────────────────────────────────────────┐
-│ NeuroGrid-Core (On-Chain, opBNB)       │
-│ Deterministic coordination             │
-│ Validators • Slashing • Telemetry      │
-│ LIVE on opBNB Testnet                  │
-└────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│                  USERS / JUDGES              │
+│        (Observers, Evaluators, DAO View)     │
+└──────────────────────────────────────────────┘
+                    │
+                    ▼
+┌──────────────────────────────────────────────┐
+│            NEUROGRID – CORE (ON-CHAIN)        │
+│              LIVE ON opBNB TESTNET            │
+│                                              │
+│  • Compute Registry                           │
+│  • Artifact Registry                          │
+│  • Validator Manager                          │
+│  • Deterministic Telemetry                    │
+│  • Fault Codes & Slashing Logic               │
+│                                              │
+│  → Smart contracts enforce coordination,      │
+│    accountability, and auditability           │
+└──────────────────────────────────────────────┘
+                    │
+                    │ (Deterministic Signals)
+                    ▼
+┌──────────────────────────────────────────────┐
+│            MEDINTEL (OFF-CHAIN – STUB)        │
+│        AI / Analytics / Inference Layer       │
+│                                              │
+│  • No execution during hackathon              │
+│  • No patient data                            │
+│  • Interfaces only                            │
+│                                              │
+│  → Future AI pipelines connect here           │
+│    under governance and audit control         │
+└──────────────────────────────────────────────┘
+                    │
+                    │ (Governance & Provenance)
+                    ▼
+┌──────────────────────────────────────────────┐
+│          DESCI LAYER (SILENT / ROOT)          │
+│   Ethics • Provenance • Research Governance   │
+│                                              │
+│  • No token logic                             │
+│  • No execution paths                         │
+│  • DAO & policy coordination only             │
+│                                              │
+│  → Ensures long-term compliance, trust,       │
+│    and research integrity                     │
+└──────────────────────────────────────────────┘
 
 ---
 
