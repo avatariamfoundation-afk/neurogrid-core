@@ -19,4 +19,5 @@ jobs:
       - name: JS ESLint Security
         run: |
           if [ -f .eslintrc.security.json ]; then npm install && npx eslint .; fi
+          
 
