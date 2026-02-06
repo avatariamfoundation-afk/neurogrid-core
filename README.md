@@ -1,26 +1,107 @@
-## NeuroGrid-Core
-
-Deterministic Medical Compute Coordination Protocol
+## NeuroGrid-Core (Summary)
+NeuroGrid is a deterministic coordination protocol for medical-grade computation, governance, and verifiable artifacts.
+It enables trust-minimized medical AI infrastructure without performing diagnosis, treatment, or autonomous clinical decision-making.
 Built on opBNB
 
 ---
 
-## Executive Summary
+## The Problem
+Medical AI systems fail trust tests because they are:
+Opaque
+Non-reproducible
+Weakly governed
+Difficult to audit
+Risky to deploy legally
 
+## The Solution
+NeuroGrid separates intelligence, governance, and enforcement into clean, auditable layers.
+No black boxes.
+No silent execution.
+No unsafe claims.
+
+---
+
+## System Architecture (Simplified)
+┌────────────────────────────────────────┐
+│ DeSci Layer (Silent / Policy Only)     │
+│ Ethics • Governance • Provenance       │
+│ No execution • No tokens               │
+└────────────────────────────────────────┘
+                 ▲
+                 │ policy constraints
+                 │
+┌────────────────────────────────────────┐
+│ MedIntel Layer (Stubbed Interface)     │
+│ AI pipeline stubs • Analytics adapters│
+│ No models • No patient data            │
+└────────────────────────────────────────┘
+                 ▲
+                 │ verifiable artifacts
+                 │
+┌────────────────────────────────────────┐
+│ NeuroGrid-Core (On-Chain, opBNB)       │
+│ Deterministic coordination             │
+│ Validators • Slashing • Telemetry      │
+│ LIVE on opBNB Testnet                  │
+└────────────────────────────────────────┘
+
+---
+
+## What Is Live (Hackathon-Valid)
+NeuroGrid-Core smart contracts
+Deployed on opBNB Testnet
+≥2 successful transactions
+Open-source
+No prior hackathon participation
+
+---
+
+## What Is Intentionally Stubbed
+AI models (MedIntel)
+Clinical logic
+Patient data handling
+This is by design for safety, legality, and audit clarity.
+
+---
+
+## Why This Matters to BNB Chain
+Strong fit for infrastructure, governance, and scalability
+Demonstrates responsible AI architecture
+Ready for future DeSci + AI ecosystems
+Clear upgrade path post-hackathon
+
+---
+
+## Killer Use Case (Conceptual)
+Verifiable Medical Analytics Pipeline
+External analytics run off-chain
+Results are signed
+Artifacts are registered on-chain
+Validators attest correctness
+Faults trigger slashing
+No diagnosis.
+Full accountability.
+
+---
+
+## Status
+Core logic: Frozen
+Architecture: Complete
+Deployment: Verified
+Expansion: Post-hackathon
+
+---
+## NeuroGrid-Core (Full README)
+
+## Executive Summary
 NeuroGrid is a deterministic coordination and accountability layer for medical-grade computation, research workflows, and AI-assisted analysis.
 
 It enables:
-
 Verifiable compute execution
-
 Auditable artifact lineage
-
 Fault-coded telemetry
-
 Validator accountability
-
 DAO-governed policy enforcement
-
 NeuroGrid does not perform diagnosis or treatment.
 It is infrastructure, not a medical device.
 
@@ -30,31 +111,21 @@ This repository (neurogrid-core) contains the on-chain core protocol deployed on
 
 ## What NeuroGrid Is (and Is Not)
 ### NeuroGrid IS
-
 A compute coordination protocol
-
 A deterministic trust framework
-
 A governance and accountability layer
-
 A compliance-aware substrate for medical AI
 
 ### NeuroGrid IS NOT
-
 A diagnostic engine
-
 A clinical decision-maker
-
 An autonomous AI doctor
-
 A patient data processor
-
 NeuroGrid supports compliant systems — it does not replace clinicians, regulators, or medical judgment.
 
 ---
 
 ## System Architecture (Full Stack)
-
 NeuroGrid is a three-layer system, intentionally modular.
 
 ┌────────────────────────────────────────────┐
@@ -85,29 +156,18 @@ NeuroGrid is a three-layer system, intentionally modular.
 ---
 
 ## Repository Scope (This Repo)
-
-neurogrid-core contains ONLY the on-chain protocol.
-
-Included:
-
+Neurogrid-core contains ONLY the on-chain protocol.
+### Included:
 Deterministic compute coordination
-
 Validator registration and slashing
-
 Artifact issuance and lineage tracking
-
 Fault-coded telemetry enforcement
-
 Governance hooks (DAO-controlled)
 
-Excluded by design:
-
+### Excluded by design:
 AI models
-
 Medical logic
-
 Patient data
-
 Off-chain execution engines
 
 ---
