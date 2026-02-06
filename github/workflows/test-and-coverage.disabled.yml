@@ -20,4 +20,5 @@ jobs:
       - name: Solidity Tests
         run: |
           if [ -f hardhat.config.js ]; then npm install && npx hardhat test; fi
+          
 
